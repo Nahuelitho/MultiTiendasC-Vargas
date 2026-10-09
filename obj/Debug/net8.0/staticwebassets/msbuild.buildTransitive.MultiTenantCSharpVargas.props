@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\MultiTenantCSharpVargas.props" />
+</Project>
