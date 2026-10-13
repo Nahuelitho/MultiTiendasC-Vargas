@@ -1,0 +1,64 @@
+.pagina-cuenta {
+  display: grid;
+  min-height: calc(100vh - 136px);
+  padding: 48px 16px;
+  place-items: start center;
+}
+
+.tarjeta-cuenta {
+  width: min(100%, 450px);
+  padding: 32px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--blanco);
+}
+
+.encabezado-cuenta h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: -.04em;
+}
+
+.encabezado-cuenta p {
+  margin: 8px 0 26px;
+  color: var(--gris-texto);
+}
+
+.formulario-cuenta {
+  display: grid;
+  gap: 17px;
+}
+
+.campo-formulario {
+  display: grid;
+  gap: 7px;
+}
+
+.campo-formulario label {
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.campo-formulario input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: 7px;
+}
+
+.boton-principal {
+  height: 44px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--blanco);
+  background: var(--naranja-principal);
+  font-weight: 700;
+}
+
+.nota-formulario {
+  margin: 20px 0 0;
+  color: var(--gris-texto);
+  font-size: .75rem;
+  line-height: 1.45;
+}

@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/inicio.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/encabezado-seccion.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/estado-vacio.css" asp-append-version="true" />
+}
+
+<section class="pagina-inicio" aria-labelledby="titulo-empresas">
+    <div class="encabezado-seccion">
+        <span class="etiqueta-seccion">Primer paso</span>
+        <h1 id="titulo-empresas">Comercios disponibles</h1>
+        <p>Encontrá productos y negocios cerca tuyo.</p>
+    </div>
+
+    <section class="estado-vacio" aria-labelledby="titulo-estado-vacio">
+        <h2 id="titulo-estado-vacio">Aún no hay comercios disponibles</h2>
+        <p>Estamos preparando la conexión con los comercios. Volvé pronto para descubrir negocios cerca tuyo.</p>
+    </section>
+</section>

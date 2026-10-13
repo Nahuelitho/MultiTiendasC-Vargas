@@ -1,0 +1,20 @@
+.estado-vacio {
+  padding: 32px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  color: var(--gris-texto);
+  background: var(--blanco);
+  text-align: center;
+}
+
+.estado-vacio h2 {
+  margin: 0;
+  color: var(--azul-texto);
+  font-size: 1.1rem;
+}
+
+.estado-vacio p {
+  max-width: 520px;
+  margin: 8px auto 0;
+  line-height: 1.5;
+}

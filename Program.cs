@@ -1,27 +1,37 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using MultiTenantCSharpVargas.Data;
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+var constructor = WebApplication.CreateBuilder(args);
+constructor.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
-var app = builder.Build();
+// Agrega los servicios MVC.
+constructor.Services.AddControllersWithViews();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+var cadenaConexion = constructor.Configuration.GetConnectionString("BaseDeDatos");
+if (!string.IsNullOrWhiteSpace(cadenaConexion))
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    constructor.Services.AddDbContext<ContextoAplicacion>(opciones =>
+        opciones.UseMySql(cadenaConexion, ServerVersion.AutoDetect(cadenaConexion)));
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+var aplicacion = constructor.Build();
 
-app.UseRouting();
+// Configura el flujo de peticiones.
+if (!aplicacion.Environment.IsDevelopment())
+{
+    aplicacion.UseExceptionHandler("/Inicio/Error");
+    aplicacion.UseHsts();
+}
 
-app.UseAuthorization();
+aplicacion.UseHttpsRedirection();
+aplicacion.UseStaticFiles();
 
-app.MapControllerRoute(
+aplicacion.UseRouting();
+
+aplicacion.UseAuthorization();
+
+aplicacion.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Inicio}/{action=Inicio}/{id?}");
 
-app.Run();
+aplicacion.Run();

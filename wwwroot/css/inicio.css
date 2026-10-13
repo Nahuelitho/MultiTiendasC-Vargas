@@ -1,0 +1,5 @@
+.pagina-inicio {
+  width: min(1060px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 56px 0 80px;
+}
