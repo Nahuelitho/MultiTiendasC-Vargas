@@ -20,6 +20,7 @@ erDiagram
     USUARIO ||--o{ VALORACION : realiza
     EMPRESA ||--o{ VALORACION : recibe
     EMPRESA ||--o{ PRODUCTO : publica
+    PRODUCTO ||--o{ IMAGEN_PRODUCTO : contiene
     USUARIO ||--o{ DENUNCIA : crea
     EMPRESA ||--o{ DENUNCIA : recibe
     PRODUCTO o|--o{ DENUNCIA : puede_recibir
@@ -29,6 +30,7 @@ erDiagram
         string Nombre
         string Correo UK
         string ContrasenaHash
+        string AvatarUrl
         enum Rol
         datetime FechaAlta
     }
@@ -54,6 +56,14 @@ erDiagram
         boolean Activo
     }
 
+    IMAGEN_PRODUCTO {
+        int Id PK
+        int ProductoId FK
+        string RutaArchivo
+        boolean EsPrincipal
+        datetime FechaCarga
+    }
+
     VALORACION {
         int Id PK
         int UsuarioId FK
@@ -77,6 +87,8 @@ erDiagram
 
 Cada usuario puede realizar una unica valoracion por comercio. Una denuncia
 siempre corresponde a un comercio y, opcionalmente, a uno de sus productos.
+Un producto puede tener varias imagenes almacenadas en el servidor y un usuario
+puede asociar una ruta de avatar a su perfil.
 
 ## Descripcion del proyecto
 

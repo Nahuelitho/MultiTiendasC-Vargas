@@ -8,6 +8,7 @@ public class ContextoAplicacion(DbContextOptions<ContextoAplicacion> opciones) :
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<Empresa> Empresas => Set<Empresa>();
     public DbSet<Producto> Productos => Set<Producto>();
+    public DbSet<ImagenProducto> ImagenesProducto => Set<ImagenProducto>();
     public DbSet<Valoracion> Valoraciones => Set<Valoracion>();
     public DbSet<Denuncia> Denuncias => Set<Denuncia>();
 
@@ -27,6 +28,12 @@ public class ContextoAplicacion(DbContextOptions<ContextoAplicacion> opciones) :
             .HasOne(producto => producto.Empresa)
             .WithMany(empresa => empresa.Productos)
             .HasForeignKey(producto => producto.EmpresaId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelo.Entity<ImagenProducto>()
+            .HasOne(imagen => imagen.Producto)
+            .WithMany(producto => producto.Imagenes)
+            .HasForeignKey(imagen => imagen.ProductoId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelo.Entity<Valoracion>()

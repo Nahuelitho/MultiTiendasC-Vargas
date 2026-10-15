@@ -21,5 +21,6 @@ public class Producto
     public bool Activo { get; set; } = true;
 
     public Empresa Empresa { get; set; } = null!;
+    public ICollection<ImagenProducto> Imagenes { get; set; } = new List<ImagenProducto>();
     public ICollection<Denuncia> Denuncias { get; set; } = new List<Denuncia>();
 }

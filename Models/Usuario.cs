@@ -15,6 +15,9 @@ public class Usuario
     [Required]
     public string ContrasenaHash { get; set; } = string.Empty;
 
+    [StringLength(250)]
+    public string? AvatarUrl { get; set; }
+
     public RolUsuario Rol { get; set; } = RolUsuario.Cliente;
     public DateTime FechaAlta { get; set; } = DateTime.UtcNow;
 
