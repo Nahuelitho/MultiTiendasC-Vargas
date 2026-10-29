@@ -22,6 +22,72 @@ namespace MultiTenantCSharpVargas.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Carrito", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("FechaUltimaActualizacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Carritos");
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.CarritoItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CarritoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmpresaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarritoId");
+
+                    b.HasIndex("ProductoId");
+
+                    b.ToTable("CarritoItems");
+                });
+
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Denuncia", b =>
                 {
                     b.Property<int>("Id")
@@ -154,6 +220,156 @@ namespace MultiTenantCSharpVargas.Migrations
                     b.ToTable("ImagenesProducto");
                 });
 
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Notificacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EmpresaId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("Leida")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Mensaje")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int?>("PedidoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmpresaId");
+
+                    b.HasIndex("PedidoId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Notificaciones");
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Pedido", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("DireccionEntrega")
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<int>("EmpresaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FormaPago")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int?>("GrupoPedidoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notas")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("TelefonoContacto")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmpresaId");
+
+                    b.HasIndex("GrupoPedidoId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Pedidos", t =>
+                        {
+                            t.HasCheckConstraint("CK_Pedidos_Estado", "Estado IN ('Pendiente','Confirmado','EnPreparacion','Listo','Entregado','Cancelado')");
+                        });
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.PedidoItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmpresaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<int>("PedidoId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<int?>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PedidoId", "EmpresaId");
+
+                    b.HasIndex("ProductoId", "EmpresaId");
+
+                    b.ToTable("PedidoItems");
+                });
+
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Producto", b =>
                 {
                     b.Property<int>("Id")
@@ -191,6 +407,62 @@ namespace MultiTenantCSharpVargas.Migrations
                     b.ToTable("Productos");
                 });
 
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Rol", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activo = true,
+                            Codigo = "SUPER_ADMIN",
+                            Nombre = "Super Administrador"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activo = true,
+                            Codigo = "ADMIN",
+                            Nombre = "Administrador"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            Codigo = "COMERCIANTE",
+                            Nombre = "Comerciante"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activo = true,
+                            Codigo = "CLIENTE",
+                            Nombre = "Cliente"
+                        });
+                });
+
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -220,15 +492,41 @@ namespace MultiTenantCSharpVargas.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<int>("Rol")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Correo")
                         .IsUnique();
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.UsuarioRol", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("EmpresaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RolId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmpresaId");
+
+                    b.HasIndex("RolId");
+
+                    b.HasIndex("UsuarioId", "RolId", "EmpresaId")
+                        .IsUnique();
+
+                    b.ToTable("UsuarioRoles");
                 });
 
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Valoracion", b =>
@@ -266,6 +564,36 @@ namespace MultiTenantCSharpVargas.Migrations
                         {
                             t.HasCheckConstraint("CK_Valoraciones_Puntuacion", "Puntuacion BETWEEN 1 AND 5");
                         });
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Carrito", b =>
+                {
+                    b.HasOne("MultiTenantCSharpVargas.Models.Usuario", "Usuario")
+                        .WithMany("Carritos")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.CarritoItem", b =>
+                {
+                    b.HasOne("MultiTenantCSharpVargas.Models.Carrito", "Carrito")
+                        .WithMany("Items")
+                        .HasForeignKey("CarritoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MultiTenantCSharpVargas.Models.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Carrito");
+
+                    b.Navigation("Producto");
                 });
 
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Denuncia", b =>
@@ -316,6 +644,78 @@ namespace MultiTenantCSharpVargas.Migrations
                     b.Navigation("Producto");
                 });
 
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Notificacion", b =>
+                {
+                    b.HasOne("MultiTenantCSharpVargas.Models.Empresa", "Empresa")
+                        .WithMany()
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MultiTenantCSharpVargas.Models.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MultiTenantCSharpVargas.Models.Usuario", "Usuario")
+                        .WithMany("Notificaciones")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Empresa");
+
+                    b.Navigation("Pedido");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Pedido", b =>
+                {
+                    b.HasOne("MultiTenantCSharpVargas.Models.Empresa", "Empresa")
+                        .WithMany()
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MultiTenantCSharpVargas.Models.Pedido", "GrupoPedido")
+                        .WithMany("PedidosGrupo")
+                        .HasForeignKey("GrupoPedidoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MultiTenantCSharpVargas.Models.Usuario", "Usuario")
+                        .WithMany("Pedidos")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Empresa");
+
+                    b.Navigation("GrupoPedido");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.PedidoItem", b =>
+                {
+                    b.HasOne("MultiTenantCSharpVargas.Models.Pedido", "Pedido")
+                        .WithMany("Items")
+                        .HasForeignKey("PedidoId", "EmpresaId")
+                        .HasPrincipalKey("Id", "EmpresaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MultiTenantCSharpVargas.Models.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId", "EmpresaId")
+                        .HasPrincipalKey("Id", "EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Pedido");
+
+                    b.Navigation("Producto");
+                });
+
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Producto", b =>
                 {
                     b.HasOne("MultiTenantCSharpVargas.Models.Empresa", "Empresa")
@@ -325,6 +725,32 @@ namespace MultiTenantCSharpVargas.Migrations
                         .IsRequired();
 
                     b.Navigation("Empresa");
+                });
+
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.UsuarioRol", b =>
+                {
+                    b.HasOne("MultiTenantCSharpVargas.Models.Empresa", "Empresa")
+                        .WithMany()
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MultiTenantCSharpVargas.Models.Rol", "Rol")
+                        .WithMany("UsuarioRoles")
+                        .HasForeignKey("RolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MultiTenantCSharpVargas.Models.Usuario", "Usuario")
+                        .WithMany("UsuarioRoles")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Empresa");
+
+                    b.Navigation("Rol");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Valoracion", b =>
@@ -346,6 +772,11 @@ namespace MultiTenantCSharpVargas.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Carrito", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Empresa", b =>
                 {
                     b.Navigation("Denuncias");
@@ -355,6 +786,13 @@ namespace MultiTenantCSharpVargas.Migrations
                     b.Navigation("Valoraciones");
                 });
 
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Pedido", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("PedidosGrupo");
+                });
+
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Producto", b =>
                 {
                     b.Navigation("Denuncias");
@@ -362,11 +800,24 @@ namespace MultiTenantCSharpVargas.Migrations
                     b.Navigation("Imagenes");
                 });
 
+            modelBuilder.Entity("MultiTenantCSharpVargas.Models.Rol", b =>
+                {
+                    b.Navigation("UsuarioRoles");
+                });
+
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Usuario", b =>
                 {
+                    b.Navigation("Carritos");
+
                     b.Navigation("Denuncias");
 
                     b.Navigation("Empresas");
+
+                    b.Navigation("Notificaciones");
+
+                    b.Navigation("Pedidos");
+
+                    b.Navigation("UsuarioRoles");
 
                     b.Navigation("Valoraciones");
                 });
