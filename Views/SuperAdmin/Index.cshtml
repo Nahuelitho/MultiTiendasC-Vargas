@@ -1,0 +1,32 @@
+@{
+    ViewData["Title"] = "Panel Super Admin";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-admin.css" asp-append-version="true" />
+}
+
+<div class="panel-admin">
+    <h2>Panel Super Admin</h2>
+
+    <div class="tarjetas-resumen">
+        <div class="tarjeta-resumen">
+            <span class="numero">@ViewBag.TotalUsuarios</span>
+            <span class="etiqueta">Usuarios registrados</span>
+        </div>
+        <div class="tarjeta-resumen">
+            <span class="numero">@ViewBag.TotalEmpresas</span>
+            <span class="etiqueta">Empresas registradas</span>
+        </div>
+        <div class="tarjeta-resumen">
+            <span class="numero">@ViewBag.TotalPedidos</span>
+            <span class="etiqueta">Pedidos realizados</span>
+        </div>
+    </div>
+
+    <div class="acciones-panel">
+        <a asp-action="Usuarios">Gestionar usuarios</a>
+        <a asp-action="Empresas">Ver empresas</a>
+        <a asp-action="CrearUsuario">Crear usuario</a>
+    </div>
+</div>

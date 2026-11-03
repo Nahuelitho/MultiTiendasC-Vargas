@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Tu Tienda Cerca</title>
+    <link rel="icon" href="~/imagenes/favicon.png" />
     <link rel="stylesheet" href="~/css/colores.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/estilos.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/cabecera.css" asp-append-version="true" />
@@ -24,7 +25,25 @@
 
             <nav class="navegacion-principal" aria-label="Navegación principal">
                 <a asp-area="" asp-controller="Inicio" asp-action="Inicio">Inicio</a>
-                <a asp-area="" asp-controller="Cuenta" asp-action="Crear">Crear cuenta</a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @if (User.IsInRole("SUPER_ADMIN"))
+                    {
+                        <a asp-area="" asp-controller="SuperAdmin" asp-action="Index">Panel Super Admin</a>
+                    }
+                    @if (User.IsInRole("COMERCIANTE"))
+                    {
+                        <a asp-area="" asp-controller="Comerciante" asp-action="Index">Panel Comerciante</a>
+                    }
+                    <a asp-area="" asp-controller="Perfil" asp-action="Index">Mi perfil</a>
+                    <span class="usuario">@User.Identity!.Name</span>
+                    <a asp-area="" asp-controller="Cuenta" asp-action="Logout">Cerrar sesión</a>
+                }
+                else
+                {
+                    <a asp-area="" asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a>
+                    <a asp-area="" asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a>
+                }
             </nav>
         </div>
     </header>

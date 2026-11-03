@@ -1,0 +1,42 @@
+@model MultiTenantCSharpVargas.Models.Empresa?
+@using MultiTenantCSharpVargas.Models
+
+@{
+    ViewData["Title"] = "Panel Comerciante";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-comerciante.css" asp-append-version="true" />
+}
+
+<div class="panel-comerciante">
+    <h2>Panel Comerciante</h2>
+
+    @if (Model == null)
+    {
+        <div class="tarjeta-vacia">
+            <p>Todavía no tenés una empresa registrada.</p>
+            <a class="boton-principal" asp-action="CrearEmpresa">Crear mi empresa</a>
+        </div>
+    }
+    else
+    {
+        <div class="tarjeta-empresa">
+            <h3>@Model.Nombre</h3>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+            {
+                <p>@Model.Descripcion</p>
+            }
+
+            <p><strong>Dirección:</strong> @Model.Direccion</p>
+            <p><strong>Localidad:</strong> @Model.Localidad</p>
+            <p><strong>Estado:</strong> <span class="etiqueta-estado">@Model.Estado</span></p>
+
+            @if (Model.Estado == EstadoEmpresa.Pendiente)
+            {
+                <p class="aviso">Tu empresa está pendiente de aprobación por el Super Administrador.</p>
+            }
+        </div>
+    }
+</div>

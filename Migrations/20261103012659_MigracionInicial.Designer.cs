@@ -12,8 +12,8 @@ using MultiTenantCSharpVargas.Data;
 namespace MultiTenantCSharpVargas.Migrations
 {
     [DbContext(typeof(ContextoAplicacion))]
-    [Migration("20261029145132_RolesSeed")]
-    partial class RolesSeed
+    [Migration("20261103012659_MigracionInicial")]
+    partial class MigracionInicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -325,7 +325,7 @@ namespace MultiTenantCSharpVargas.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Pedidos", t =>
+                    b.ToTable("Pedidos", null, t =>
                         {
                             t.HasCheckConstraint("CK_Pedidos_Estado", "Estado IN ('Pendiente','Confirmado','EnPreparacion','Listo','Entregado','Cancelado')");
                         });
@@ -501,6 +501,16 @@ namespace MultiTenantCSharpVargas.Migrations
                         .IsUnique();
 
                     b.ToTable("Usuarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1000,
+                            ContrasenaHash = "ED420D51779BD4722D41DB8203B70893CBB95582BF3E8C337492E8E2ABFDB483",
+                            Correo = "SuperAdmin@test.com",
+                            FechaAlta = new DateTime(2026, 11, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Super Admin"
+                        });
                 });
 
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.UsuarioRol", b =>
@@ -530,6 +540,14 @@ namespace MultiTenantCSharpVargas.Migrations
                         .IsUnique();
 
                     b.ToTable("UsuarioRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1000,
+                            RolId = 1,
+                            UsuarioId = 1000
+                        });
                 });
 
             modelBuilder.Entity("MultiTenantCSharpVargas.Models.Valoracion", b =>

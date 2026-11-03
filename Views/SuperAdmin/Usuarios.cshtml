@@ -1,0 +1,40 @@
+@model IEnumerable<MultiTenantCSharpVargas.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-admin.css" asp-append-version="true" />
+}
+
+<div class="panel-admin">
+    <h2>Usuarios</h2>
+
+    <a class="boton-principal" asp-action="CrearUsuario">Crear usuario</a>
+
+    <table class="tabla-admin">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usuario in Model)
+            {
+                <tr>
+                    <td>@usuario.Nombre</td>
+                    <td>@usuario.Correo</td>
+                    <td>
+                        @foreach (var usuarioRol in usuario.UsuarioRoles)
+                        {
+                            <span class="rol-etiqueta">@usuarioRol.Rol.Nombre</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace MultiTenantCSharpVargas.Models;
 
@@ -17,6 +19,9 @@ public class Usuario
 
     [StringLength(250)]
     public string? AvatarUrl { get; set; }
+
+    [NotMapped]
+    public IFormFile? AvatarFile { get; set; }
 
     public DateTime FechaAlta { get; set; } = DateTime.UtcNow;
 

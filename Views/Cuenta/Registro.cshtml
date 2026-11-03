@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Crear cuenta";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+}
+
+<div class="tarjeta-cuenta">
+    <h2>Crear tu cuenta</h2>
+
+    @if (!string.IsNullOrEmpty(ViewData["Error"] as string))
+    {
+        <div class="alerta-error">@ViewData["Error"]</div>
+    }
+
+    <form asp-controller="Cuenta" asp-action="Registro" method="post">
+        <div class="campo">
+            <label>Nombre</label>
+            <input type="text" name="nombre" required />
+        </div>
+        <div class="campo">
+            <label>Correo electrónico</label>
+            <input type="email" name="correo" required />
+        </div>
+        <div class="campo">
+            <label>Contraseña</label>
+            <input type="password" name="contrasena" required />
+        </div>
+        <br/>            
+        <button type="submit">Crear cuenta</button>
+    </form>
+    
+    <p>¿Ya tienes cuenta? <a asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a></p>
+</div>

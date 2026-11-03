@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Crear mi empresa";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+}
+
+<div class="tarjeta-cuenta">
+    <h2>Crear mi empresa</h2>
+
+    <form asp-action="CrearEmpresa" method="post">
+        <div class="campo">
+            <label>Nombre</label>
+            <input type="text" name="Nombre" required />
+        </div>
+        <div class="campo">
+            <label>Descripción</label>
+            <input type="text" name="Descripcion" />
+        </div>
+        <div class="campo">
+            <label>Dirección</label>
+            <input type="text" name="Direccion" required />
+        </div>
+        <div class="campo">
+            <label>Localidad</label>
+            <input type="text" name="Localidad" required />
+        </div>
+        <div class="campo">
+            <label>Teléfono</label>
+            <input type="text" name="Telefono" />
+        </div>
+        <div class="campo">
+            <label>Medios de pago</label>
+            <input type="text" name="MediosDePago" />
+        </div>
+        <div class="campo">
+            <label>
+                <input type="checkbox" name="OfreceDelivery" value="true" />
+                Ofrece delivery
+            </label>
+        </div>
+        <button type="submit">Crear empresa</button>
+    </form>
+
+    <p><a asp-action="Index">Volver al panel</a></p>
+</div>

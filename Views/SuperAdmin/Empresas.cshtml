@@ -1,0 +1,33 @@
+@model IEnumerable<MultiTenantCSharpVargas.Models.Empresa>
+
+@{
+    ViewData["Title"] = "Empresas";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-admin.css" asp-append-version="true" />
+}
+
+<div class="panel-admin">
+    <h2>Empresas</h2>
+
+    <table class="tabla-admin">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Localidad</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var empresa in Model)
+            {
+                <tr>
+                    <td>@empresa.Nombre</td>
+                    <td>@empresa.Localidad</td>
+                    <td>@empresa.Estado</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

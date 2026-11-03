@@ -1,0 +1,93 @@
+@model MultiTenantCSharpVargas.Models.Usuario
+
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/perfil.css" asp-append-version="true" />
+}
+
+<div class="perfil">
+    <div class="perfil-encabezado">
+        <h1>Mi perfil</h1>
+        <p>Actualizá tus datos, tu foto y tu contraseña.</p>
+    </div>
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="perfil-aviso perfil-aviso-exito">@mensaje</div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="perfil-aviso perfil-aviso-error">@error</div>
+    }
+
+    <div class="perfil-columnas">
+        <section class="tarjeta-cuenta">
+            <h2>Datos personales</h2>
+
+            <form asp-action="Actualizar" method="post" enctype="multipart/form-data">
+                <div class="perfil-avatar">
+                    @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                    {
+                        <img src="@Model.AvatarUrl" alt="Foto de perfil" />
+                    }
+                    else
+                    {
+                        <span class="perfil-avatar-vacio">Sin foto</span>
+                    }
+                </div>
+
+                <div class="campo">
+                    <label for="nombre">Nombre</label>
+                    <input id="nombre" name="nombre" value="@Model.Nombre" maxlength="100" required />
+                </div>
+
+                <div class="campo">
+                    <label for="correo">Correo electrónico</label>
+                    <input id="correo" value="@Model.Correo" disabled />
+                </div>
+
+                <div class="campo">
+                    <label for="avatar">Foto de perfil</label>
+                    <input id="avatar" type="file" name="avatar" accept="image/*" />
+                </div>
+
+                <button type="submit">Guardar cambios</button>
+            </form>
+
+            @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+            {
+                <form asp-action="EliminarAvatar" method="post">
+                    <button type="submit" class="boton-secundario">Eliminar foto</button>
+                </form>
+            }
+        </section>
+
+        <section class="tarjeta-cuenta">
+            <h2>Cambiar contraseña</h2>
+
+            <form asp-action="CambiarContrasena" method="post">
+                <div class="campo">
+                    <label for="actual">Contraseña actual</label>
+                    <input id="actual" name="actual" type="password" required />
+                </div>
+
+                <div class="campo">
+                    <label for="nueva">Nueva contraseña</label>
+                    <input id="nueva" name="nueva" type="password" required />
+                </div>
+
+                <div class="campo">
+                    <label for="repetida">Repetir contraseña</label>
+                    <input id="repetida" name="repetida" type="password" required />
+                </div>
+
+                <button type="submit">Cambiar contraseña</button>
+            </form>
+        </section>
+    </div>
+</div>

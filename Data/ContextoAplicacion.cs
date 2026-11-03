@@ -80,7 +80,8 @@ public class ContextoAplicacion(DbContextOptions<ContextoAplicacion> opciones) :
 
         // --- Pedidos ---
         modelo.Entity<Pedido>()
-            .HasCheckConstraint("CK_Pedidos_Estado", "Estado IN ('Pendiente','Confirmado','EnPreparacion','Listo','Entregado','Cancelado')");
+            .ToTable("Pedidos", tabla => tabla.HasCheckConstraint(
+                "CK_Pedidos_Estado", "Estado IN ('Pendiente','Confirmado','EnPreparacion','Listo','Entregado','Cancelado')"));
 
         modelo.Entity<Pedido>()
             .HasOne(p => p.Usuario).WithMany(u => u.Pedidos).HasForeignKey(p => p.UsuarioId).OnDelete(DeleteBehavior.Restrict);
@@ -129,6 +130,22 @@ public class ContextoAplicacion(DbContextOptions<ContextoAplicacion> opciones) :
             new Rol { Id = 2, Nombre = "Administrador", Codigo = "ADMIN", Activo = true },
             new Rol { Id = 3, Nombre = "Comerciante", Codigo = "COMERCIANTE", Activo = true },
             new Rol { Id = 4, Nombre = "Cliente", Codigo = "CLIENTE", Activo = true }
+        );
+
+        // --- Seed del usuario super administrador ---
+        modelo.Entity<Usuario>().HasData(
+            new Usuario
+            {
+                Id = 1000,
+                Nombre = "Super Admin",
+                Correo = "SuperAdmin@test.com",
+                ContrasenaHash = "ED420D51779BD4722D41DB8203B70893CBB95582BF3E8C337492E8E2ABFDB483",
+                FechaAlta = new DateTime(2026, 11, 2)
+            }
+        );
+
+        modelo.Entity<UsuarioRol>().HasData(
+            new UsuarioRol { Id = 1000, UsuarioId = 1000, RolId = 1, EmpresaId = null }
         );
     }
 }

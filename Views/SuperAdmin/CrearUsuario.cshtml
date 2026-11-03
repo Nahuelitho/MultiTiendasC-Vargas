@@ -1,0 +1,54 @@
+@{
+    ViewData["Title"] = "Crear usuario";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+}
+
+<div class="tarjeta-cuenta">
+    <h2>Crear usuario</h2>
+
+    @if (!string.IsNullOrEmpty(ViewData["Error"] as string))
+    {
+        <div class="alerta-error">@ViewData["Error"]</div>
+    }
+
+    <form asp-action="CrearUsuario" method="post">
+        <div class="campo">
+            <label>Nombre</label>
+            <input type="text" name="nombre" required />
+        </div>
+        <div class="campo">
+            <label>Correo electrónico</label>
+            <input type="email" name="correo" required />
+        </div>
+        <div class="campo">
+            <label>Contraseña</label>
+            <input type="password" name="contrasena" required />
+        </div>
+        <div class="campo">
+            <label>Rol</label>
+            <select name="rolId" required>
+                @foreach (var rol in ViewBag.Roles)
+                {
+                    <option value="@rol.Id">@rol.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="campo">
+            <label>Empresa (opcional)</label>
+            <select name="empresaId">
+                <option value="">Sin empresa (alcance global)</option>
+                @foreach (var empresa in ViewBag.Empresas)
+                {
+                    <option value="@empresa.Id">@empresa.Nombre</option>
+                }
+            </select>
+        </div>
+        <button type="submit">Crear usuario</button>
+    </form>
+
+    <p><a asp-action="Usuarios">Volver a usuarios</a></p>
+</div>

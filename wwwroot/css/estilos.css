@@ -22,7 +22,8 @@ a {
 }
 
 input,
-button {
+button,
+select {
   font: inherit;
 }
 
@@ -68,4 +69,65 @@ button {
   width: min(600px, calc(100% - 32px));
   margin: 0 auto;
   padding: 70px 0;
+}
+
+/* Contenedores de página reutilizables */
+.pagina-inicio {
+  width: min(1060px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 56px 0 80px;
+}
+
+/* Encabezado de sección reutilizable */
+.encabezado-seccion {
+  margin-bottom: 24px;
+}
+
+.encabezado-seccion h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  letter-spacing: -.05em;
+}
+
+.encabezado-seccion p {
+  margin: 8px 0 0;
+  color: var(--gris-texto);
+}
+
+/* Estado vacío reutilizable */
+.estado-vacio {
+  padding: 32px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  color: var(--gris-texto);
+  background: var(--blanco);
+  text-align: center;
+}
+
+.estado-vacio h2 {
+  margin: 0;
+  color: var(--azul-texto);
+  font-size: 1.1rem;
+}
+
+.estado-vacio p {
+  max-width: 520px;
+  margin: 8px auto 0;
+  line-height: 1.5;
+}
+
+/* Botón principal reutilizable */
+.boton-principal {
+  display: inline-block;
+  padding: .6rem 1.2rem;
+  border: 0;
+  border-radius: 7px;
+  color: var(--blanco);
+  background: var(--naranja-principal);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-principal:hover {
+  background: var(--naranja-oscuro);
 }

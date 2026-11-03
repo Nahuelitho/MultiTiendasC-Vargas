@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+}
+
+<div class="tarjeta-cuenta">
+    <h2>Iniciar sesión</h2>
+
+    @if (!string.IsNullOrEmpty(ViewData["Error"] as string))
+    {
+        <div class="alerta-error">@ViewData["Error"]</div>
+    }
+
+    <form asp-controller="Cuenta" asp-action="Login" method="post">
+        <div class="campo">
+            <label>Correo electrónico</label>
+            <input type="email" name="correo" required />
+        </div>
+        <div class="campo">
+            <label>Contraseña</label>
+            <input type="password" name="contrasena" required />
+        </div>
+        <br/>
+        <button type="submit">Ingresar</button>
+    </form>
+
+    <p>¿No tienes cuenta? <a asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a></p>
+</div>
