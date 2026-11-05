@@ -17,7 +17,6 @@ constructor.Services.AddAuthentication(CookieAuthenticationDefaults.Authenticati
         opciones.AccessDeniedPath = "/Cuenta/AccesoDenegado";
     });
 
-// Para que Render no rompa con el https
 constructor.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -32,31 +31,41 @@ if (!string.IsNullOrWhiteSpace(cadenaConexion))
 
 var aplicacion = constructor.Build();
 
-// Aplica migraciones automatico al arrancar - CLAVE PARA RENDER
+// Aplica migraciones solo si hay DB configurada
 using (var scope = aplicacion.Services.CreateScope())
 {
-    try {
-        var db = scope.ServiceProvider.GetRequiredService<ContextoAplicacion>();
-        db.Database.Migrate();
-    } catch (Exception ex) {
-        Console.WriteLine($"Error migrando DB: {ex.Message}");
+    var db = scope.ServiceProvider.GetService<ContextoAplicacion>();
+    if (db != null)
+    {
+        try {
+            db.Database.Migrate();
+            Console.WriteLine("Migraciones aplicadas OK");
+        } catch (Exception ex) {
+            Console.WriteLine($"Error migrando DB: {ex.Message}");
+            Console.WriteLine(ex.ToString());
+        }
+    }
+    else
+    {
+        Console.WriteLine("ADVERTENCIA: ContextoAplicacion no registrado - ConnectionStrings__BaseDeDatos vacia o mal escrita");
     }
 }
 
-if (!aplicacion.Environment.IsDevelopment())
-{
-    aplicacion.UseExceptionHandler("/Inicio/Error");
-    aplicacion.UseHsts();
-}
+aplicacion.UseForwardedHeaders();
 
-aplicacion.UseForwardedHeaders(); // <- agregado
-// aplicacion.UseHttpsRedirection(); <- COMENTALO en Render, si no falla
+// En Render dejalo comentado para ver el error real
+// if (!aplicacion.Environment.IsDevelopment())
+// {
+//     aplicacion.UseExceptionHandler("/Inicio/Error");
+//     aplicacion.UseHsts();
+// }
 
 aplicacion.UseStaticFiles();
 aplicacion.UseRouting();
 aplicacion.UseAuthentication();
 aplicacion.UseAuthorization();
 
+aplicacion.MapControllers(); // <- agregalo por si tenes API
 aplicacion.MapControllerRoute(
     name: "default",
     pattern: "{controller=Inicio}/{action=Inicio}/{id?}");
