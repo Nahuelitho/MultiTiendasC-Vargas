@@ -2,6 +2,8 @@
 [Bb]in/
 [Oo]bj/
 [Aa]rtifacts/
+**/bin/
+**/obj/
 
 # Visual Studio
 .vs/
@@ -9,32 +11,47 @@
 *.userosscache
 *.suo
 *.sln.docstates
+*.rsuser
+*.dbmdl
 
 # Visual Studio Code
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # JetBrains Rider
 .idea/
 *.sln.iml
 
-# NuGet packages
+# NuGet
 *.nupkg
 *.snupkg
 packages/
 project.lock.json
 project.fragment.lock.json
+artifacts/
 
-# Test and coverage output
+# Test
 TestResults/
 coverage/
+*.coverage
+*.coveragexml
 
-# Local environment files
+# Environment - IMPORTANTE PARA RENDER
 appsettings.Local.json
+appsettings.Development.json
 *.local.json
+.env
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Local project context
 /.tu-tienda-cerca.sdd.md
 
-# Archivos subidos por los usuarios
+# Archivos subidos por los usuarios - no se suben a git
 wwwroot/imagenes/avatares/
 wwwroot/imagenes/productos/
