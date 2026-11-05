@@ -1,0 +1,69 @@
+@model DetalleProductoVista
+@using MultiTenantCSharpVargas.Models.Vistas
+
+@{
+    ViewData["Title"] = Model.Producto.Nombre;
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/catalogo.css" asp-append-version="true" />
+}
+
+<section class="pagina-inicio">
+    <nav class="migas" aria-label="Navegación">
+        <a asp-action="Inicio" asp-route-vista="productos">Productos</a>
+        <span aria-hidden="true">/</span>
+        <span>@Model.Producto.Nombre</span>
+    </nav>
+
+    <div class="detalle-producto">
+        <div class="detalle-producto-imagen">
+            @if (!string.IsNullOrWhiteSpace(Model.Producto.RutaImagen))
+            {
+                <img src="@Model.Producto.RutaImagen" alt="@Model.Producto.Nombre" />
+            }
+            else
+            {
+                <span class="tarjeta-imagen-vacia" aria-hidden="true">@Model.Producto.Inicial</span>
+            }
+        </div>
+
+        <div class="detalle-producto-info">
+            <span class="tarjeta-etiqueta">@Model.Producto.EmpresaNombre</span>
+            <h1>@Model.Producto.Nombre</h1>
+
+            <p class="detalle-precio">$ @Model.Producto.Precio.ToString("N2")</p>
+            <p class="detalle-stock @(Model.Producto.TieneStock ? string.Empty : "sin-stock")">
+                @(Model.Producto.TieneStock ? $"Disponible: {Model.Producto.Stock} unidades" : "Sin stock por el momento")
+            </p>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Producto.Descripcion))
+            {
+                <p class="detalle-texto">@Model.Producto.Descripcion</p>
+            }
+
+            <a class="boton-principal" asp-action="Empresa" asp-route-id="@Model.Producto.EmpresaId">
+                Ver comercio
+            </a>
+        </div>
+    </div>
+
+    <aside class="detalle-contacto detalle-contacto-producto">
+        <h2>Datos del comercio</h2>
+        <ul>
+            <li><strong>Comercio:</strong> @Model.Producto.EmpresaNombre</li>
+            <li><strong>Dirección:</strong> @Model.EmpresaDireccion</li>
+            <li><strong>Localidad:</strong> @Model.Producto.Localidad</li>
+            @if (!string.IsNullOrWhiteSpace(Model.EmpresaTelefono))
+            {
+                <li><strong>Teléfono:</strong> @Model.EmpresaTelefono</li>
+            }
+            <li><strong>Delivery:</strong> @(Model.EmpresaOfreceDelivery ? "Sí" : "No")</li>
+            @if (!string.IsNullOrWhiteSpace(Model.EmpresaMediosDePago))
+            {
+                <li><strong>Medios de pago:</strong> @Model.EmpresaMediosDePago</li>
+            }
+            <li><strong>Productos activos:</strong> @Model.EmpresaCantidadProductos</li>
+        </ul>
+    </aside>
+</section>

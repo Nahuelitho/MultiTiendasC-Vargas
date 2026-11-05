@@ -1,0 +1,23 @@
+@model MultiTenantCSharpVargas.Models.Producto
+
+<div class="campo">
+    <label for="Nombre">Nombre del producto</label>
+    <input id="Nombre" name="Nombre" value="@Model.Nombre" maxlength="150" required />
+</div>
+
+<div class="campo">
+    <label for="Descripcion">Descripción</label>
+    <textarea id="Descripcion" name="Descripcion" maxlength="500" rows="4">@Model.Descripcion</textarea>
+</div>
+
+<div class="campos-dobles">
+    <div class="campo">
+        <label for="Precio">Precio</label>
+        <input id="Precio" name="Precio" type="number" min="0" step="0.01" value="@Model.Precio" required />
+    </div>
+
+    <div class="campo">
+        <label for="Stock">Stock</label>
+        <input id="Stock" name="Stock" type="number" min="0" step="1" value="@Model.Stock" required />
+    </div>
+</div>

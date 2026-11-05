@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/css/colores.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/estilos.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/cabecera.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/tarjetas.css" asp-append-version="true" />
     @await RenderSectionAsync("Estilos", required: false)
 </head>
 <body>
@@ -18,13 +19,15 @@
                 <span>Tu Tienda Cerca</span>
             </a>
 
-            <div class="barra-busqueda" role="search">
+            <form class="barra-busqueda" role="search" asp-area="" asp-controller="Inicio" asp-action="Inicio" method="get">
                 <label class="oculto" for="busqueda">Buscar productos o empresas</label>
-                <input id="busqueda" type="search" placeholder="Buscar productos o empresas" autocomplete="off" />
-            </div>
+                <input id="busqueda" name="q" type="search" placeholder="Buscar productos o empresas" autocomplete="off" />
+            </form>
 
             <nav class="navegacion-principal" aria-label="Navegación principal">
                 <a asp-area="" asp-controller="Inicio" asp-action="Inicio">Inicio</a>
+                <a asp-area="" asp-controller="Inicio" asp-action="Inicio" asp-route-vista="empresas">Comercios</a>
+                <a asp-area="" asp-controller="Inicio" asp-action="Inicio" asp-route-vista="productos">Productos</a>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     @if (User.IsInRole("SUPER_ADMIN"))
@@ -49,6 +52,16 @@
     </header>
 
     <main class="contenido-principal" role="main">
+        @if (TempData["Mensaje"] is string mensaje)
+        {
+            <div class="alerta-global alerta-global-exito" role="status">@mensaje</div>
+        }
+
+        @if (TempData["Error"] is string error)
+        {
+            <div class="alerta-global alerta-global-error" role="alert">@error</div>
+        }
+
         @RenderBody()
     </main>
 

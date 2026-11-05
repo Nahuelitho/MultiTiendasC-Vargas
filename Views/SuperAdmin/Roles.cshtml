@@ -1,0 +1,66 @@
+@model IEnumerable<MultiTenantCSharpVargas.Models.Rol>
+
+@{
+    ViewData["Title"] = "Roles";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-admin.css" asp-append-version="true" />
+}
+
+<div class="panel-admin">
+    <h2>Roles del sistema</h2>
+
+    <div class="acciones-panel">
+        <a class="boton-principal" asp-action="CrearRol">Crear rol</a>
+        <a asp-action="Index">Volver al panel</a>
+        <a asp-action="Usuarios">Gestionar usuarios</a>
+    </div>
+
+    <table class="tabla-admin">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th>Usuarios</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rol in Model)
+            {
+                <tr>
+                    <td>@rol.Nombre</td>
+                    <td><code>@rol.Codigo</code></td>
+                    <td>@rol.UsuarioRoles.Count</td>
+                    <td>
+                        <span class="estado-empresa @(rol.Activo ? "estado-activa" : "estado-suspendida")">
+                            @(rol.Activo ? "Activo" : "Inactivo")
+                        </span>
+                    </td>
+                    <td>
+                        <div class="acciones-fila">
+                            <a class="enlace-accion" asp-action="EditarRol" asp-route-id="@rol.Id">Editar</a>
+
+                            @if (rol.Codigo != "SUPER_ADMIN")
+                            {
+                                <form asp-action="CambiarEstadoRol" method="post">
+                                    <input type="hidden" name="id" value="@rol.Id" />
+                                    <button type="submit" class="boton-tabla @(rol.Activo ? "boton-peligro" : "boton-exito")">
+                                        @(rol.Activo ? "Desactivar" : "Activar")
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <p class="texto-tenue nota-panel">
+        Desactivar un rol impide que se asigne a nuevos usuarios y deja de incluirse en la sesión.
+        Los roles ya asignados no se eliminan para conservar el historial.
+    </p>
+</div>

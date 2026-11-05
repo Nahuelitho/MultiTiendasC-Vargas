@@ -1,14 +1,20 @@
 ﻿@model ModeloError
 @{
-    ViewData["Title"] = "Ocurrio un error";
+    ViewData["Title"] = Model.Titulo;
 }
 
-<section class="pagina-error">
-    <h1>Ocurrio un error</h1>
-    <p>No pudimos completar la solicitud.</p>
+<section class="pagina-error" aria-labelledby="titulo-error">
+    <span class="codigo-error">@Model.CodigoEstado</span>
+    <h1 id="titulo-error">@Model.Titulo</h1>
+    <p>@Model.Mensaje</p>
 
     @if (Model.MostrarIdentificador)
     {
-        <p>Identificador: <code>@Model.IdentificadorSolicitud</code></p>
+        <p class="detalle-error">Identificador de la solicitud: <code>@Model.IdentificadorSolicitud</code></p>
     }
+
+    <div class="acciones-error">
+        <a class="boton-principal" asp-controller="Inicio" asp-action="Inicio">Volver al inicio</a>
+        <a class="boton-secundario-enlace" asp-controller="Inicio" asp-action="Inicio" asp-route-vista="productos">Ver productos</a>
+    </div>
 </section>

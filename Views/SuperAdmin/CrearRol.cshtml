@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Crear rol";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+}
+
+<div class="tarjeta-cuenta">
+    <h2>Crear rol</h2>
+
+    @if (!string.IsNullOrEmpty(ViewData["Error"] as string))
+    {
+        <div class="alerta-error">@ViewData["Error"]</div>
+    }
+
+    <form asp-action="CrearRol" method="post">
+        <div class="campo">
+            <label for="nombre">Nombre visible</label>
+            <input id="nombre" name="nombre" maxlength="40" required />
+        </div>
+
+        <div class="campo">
+            <label for="codigo">Código interno</label>
+            <input id="codigo" name="codigo" maxlength="40" placeholder="EJEMPLO_ROL" required />
+            <span class="texto-tenue">Solo letras, números y guiones bajos. Se guarda en mayúsculas.</span>
+        </div>
+
+        <button type="submit">Crear rol</button>
+    </form>
+
+    <p><a asp-action="Roles">Volver a roles</a></p>
+</div>

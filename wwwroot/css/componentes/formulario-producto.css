@@ -1,0 +1,108 @@
+.formulario-producto {
+  width: min(760px, calc(100% - 32px));
+  margin: 2rem auto;
+  padding: 1.6rem;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--blanco);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+}
+
+.formulario-cabecera {
+  margin-bottom: 1.2rem;
+}
+
+.formulario-cabecera h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  letter-spacing: -.04em;
+}
+
+.formulario-cabecera p {
+  margin: .35rem 0 0;
+  color: var(--gris-texto);
+  font-size: .9rem;
+}
+
+.formulario-producto form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formulario-producto .campo textarea {
+  width: 100%;
+  padding: .6rem;
+  border: 1px solid var(--borde);
+  border-radius: 7px;
+  outline: 0;
+  background: var(--blanco);
+  font: inherit;
+  resize: vertical;
+}
+
+.formulario-producto .campo textarea:focus {
+  border-color: var(--naranja-principal);
+}
+
+.campos-dobles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.acciones-formulario {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem;
+  margin-top: .25rem;
+}
+
+.acciones-formulario .boton-principal,
+.acciones-formulario .boton-secundario-enlace {
+  width: auto;
+}
+
+.galeria-producto-seccion {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--borde);
+}
+
+.galeria-producto-seccion h2 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+}
+
+.galeria-producto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.galeria-item {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--gris-fondo);
+}
+
+.galeria-item img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+}
+
+.galeria-item figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  padding: .55rem;
+}
+
+.galeria-item form {
+  margin: 0;
+}

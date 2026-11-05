@@ -1,4 +1,5 @@
 @model IEnumerable<MultiTenantCSharpVargas.Models.Empresa>
+@using MultiTenantCSharpVargas.Models
 
 @{
     ViewData["Title"] = "Empresas";
@@ -11,21 +12,74 @@
 <div class="panel-admin">
     <h2>Empresas</h2>
 
+    <div class="acciones-panel">
+        <a asp-action="Index">Volver al panel</a>
+        <a asp-action="Usuarios">Gestionar usuarios</a>
+        <a asp-action="Roles">Gestionar roles</a>
+    </div>
+
     <table class="tabla-admin">
         <thead>
             <tr>
-                <th>Nombre</th>
+                <th>Empresa</th>
+                <th>Propietario</th>
                 <th>Localidad</th>
                 <th>Estado</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="5" class="texto-tenue">Todavía no hay empresas registradas.</td>
+                </tr>
+            }
             @foreach (var empresa in Model)
             {
                 <tr>
-                    <td>@empresa.Nombre</td>
+                    <td>
+                        <strong>@empresa.Nombre</strong>
+                        <span class="texto-tenue bloque">@empresa.Direccion</span>
+                    </td>
+                    <td>
+                        @empresa.Propietario.Nombre
+                        <span class="texto-tenue bloque">@empresa.Propietario.Correo</span>
+                    </td>
                     <td>@empresa.Localidad</td>
-                    <td>@empresa.Estado</td>
+                    <td>
+                        <span class="estado-empresa estado-@empresa.Estado.ToString().ToLowerInvariant()">@empresa.Estado</span>
+                    </td>
+                    <td>
+                        <div class="acciones-fila">
+                            @if (empresa.Estado == EstadoEmpresa.Activa)
+                            {
+                                <a class="enlace-accion" asp-controller="Inicio" asp-action="Empresa" asp-route-id="@empresa.Id" target="_blank" rel="noopener">Ver pública</a>
+                                <form asp-action="CambiarEstadoEmpresa" method="post">
+                                    <input type="hidden" name="id" value="@empresa.Id" />
+                                    <input type="hidden" name="estado" value="@EstadoEmpresa.Suspendida" />
+                                    <button type="submit" class="boton-tabla boton-peligro">Suspender</button>
+                                </form>
+                            }
+                            else if (empresa.Estado == EstadoEmpresa.Suspendida || empresa.Estado == EstadoEmpresa.EnRevision || empresa.Estado == EstadoEmpresa.Pendiente)
+                            {
+                                <form asp-action="CambiarEstadoEmpresa" method="post">
+                                    <input type="hidden" name="id" value="@empresa.Id" />
+                                    <input type="hidden" name="estado" value="@EstadoEmpresa.Activa" />
+                                    <button type="submit" class="boton-tabla boton-exito">Aprobar</button>
+                                </form>
+
+                                @if (empresa.Estado == EstadoEmpresa.Pendiente)
+                                {
+                                    <form asp-action="CambiarEstadoEmpresa" method="post">
+                                        <input type="hidden" name="id" value="@empresa.Id" />
+                                        <input type="hidden" name="estado" value="@EstadoEmpresa.EnRevision" />
+                                        <button type="submit" class="boton-tabla">Poner en revisión</button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </td>
                 </tr>
             }
         </tbody>

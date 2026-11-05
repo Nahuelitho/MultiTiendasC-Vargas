@@ -1,0 +1,91 @@
+@model DetalleEmpresaVista
+@using MultiTenantCSharpVargas.Models.Vistas
+
+@{
+    ViewData["Title"] = Model.Empresa.Nombre;
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/catalogo.css" asp-append-version="true" />
+}
+
+<section class="pagina-inicio">
+    <nav class="migas" aria-label="Navegación">
+        <a asp-action="Inicio">Comercios</a>
+        <span aria-hidden="true">/</span>
+        <span>@Model.Empresa.Nombre</span>
+    </nav>
+
+    <header class="detalle-encabezado">
+        <span class="tarjeta-distintivo detalle-distintivo" aria-hidden="true">@Model.Empresa.Inicial</span>
+        <div>
+            <h1>@Model.Empresa.Nombre</h1>
+            <p class="detalle-ubicacion">@Model.Empresa.Direccion · @Model.Empresa.Localidad</p>
+            <div class="detalle-etiquetas">
+                @if (Model.Empresa.EstaValidada)
+                {
+                    <span class="sello-validada">Validada por la comunidad</span>
+                }
+                <span class="detalle-dato">@Model.Empresa.CantidadProductos productos activos</span>
+                @if (Model.Empresa.CantidadValoraciones > 0)
+                {
+                    <span class="detalle-dato tarjeta-rating">★ @Model.Empresa.PromedioValoracion.ToString("0.0") (@Model.Empresa.CantidadValoraciones)</span>
+                }
+            </div>
+        </div>
+    </header>
+
+    <div class="detalle-columnas">
+        <section class="detalle-descripcion">
+            <h2>Sobre el comercio</h2>
+            <p>
+                @(string.IsNullOrWhiteSpace(Model.Empresa.Descripcion)
+                    ? "Este comercio todavía no agregó una descripción."
+                    : Model.Empresa.Descripcion)
+            </p>
+        </section>
+
+        <aside class="detalle-contacto">
+            <h2>Información</h2>
+            <ul>
+                <li><strong>Dirección:</strong> @Model.Empresa.Direccion</li>
+                <li><strong>Localidad:</strong> @Model.Empresa.Localidad</li>
+                @if (!string.IsNullOrWhiteSpace(Model.Empresa.Telefono))
+                {
+                    <li><strong>Teléfono:</strong> @Model.Empresa.Telefono</li>
+                }
+                <li><strong>Delivery:</strong> @(Model.Empresa.OfreceDelivery ? "Sí" : "No")</li>
+                @if (!string.IsNullOrWhiteSpace(Model.Empresa.MediosDePago))
+                {
+                    <li><strong>Medios de pago:</strong> @Model.Empresa.MediosDePago</li>
+                }
+            </ul>
+        </aside>
+    </div>
+
+    <section class="detalle-productos">
+        <div class="encabezado-seccion">
+            <span class="etiqueta-seccion">Productos</span>
+            <h2>Qué ofrece @Model.Empresa.Nombre</h2>
+        </div>
+
+        @if (Model.Productos.Count == 0)
+        {
+            <div class="estado-vacio">
+                <h2>Sin productos publicados</h2>
+                <p>Este comercio todavía no publicó productos activos.</p>
+            </div>
+        }
+        else
+        {
+            <div class="grilla-tarjetas">
+                @foreach (var producto in Model.Productos)
+                {
+                    <a class="tarjeta-enlace" asp-action="Producto" asp-route-id="@producto.Id">
+                        <partial name="_TarjetaProducto" model="producto" />
+                    </a>
+                }
+            </div>
+        }
+    </section>
+</section>

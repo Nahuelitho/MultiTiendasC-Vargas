@@ -1,0 +1,37 @@
+@model MultiTenantCSharpVargas.Models.Producto
+
+@if (Model.Imagenes.Count == 0)
+{
+    <p class="texto-tenue">Todavía no cargaste imágenes para este producto.</p>
+}
+else
+{
+    <div class="galeria-producto">
+        @foreach (var imagen in Model.Imagenes.OrderByDescending(i => i.EsPrincipal).ThenBy(i => i.Id))
+        {
+            <figure class="galeria-item">
+                <img src="@imagen.RutaArchivo" alt="Imagen del producto @Model.Nombre" loading="lazy" />
+
+                <figcaption>
+                    @if (imagen.EsPrincipal)
+                    {
+                        <span class="sello-validada">Principal</span>
+                    }
+                    else
+                    {
+                        <form asp-action="MarcarImagenPrincipal" method="post">
+                            <input type="hidden" name="id" value="@imagen.Id" />
+                            <button type="submit" class="boton-tabla">Hacer principal</button>
+                        </form>
+                    }
+
+                    <form asp-action="EliminarImagen" method="post"
+                          onsubmit="return confirm('¿Eliminar esta imagen?');">
+                        <input type="hidden" name="id" value="@imagen.Id" />
+                        <button type="submit" class="boton-tabla boton-peligro">Eliminar</button>
+                    </form>
+                </figcaption>
+            </figure>
+        }
+    </div>
+}

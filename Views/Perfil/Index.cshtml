@@ -15,16 +15,6 @@
         <p>Actualizá tus datos, tu foto y tu contraseña.</p>
     </div>
 
-    @if (TempData["Mensaje"] is string mensaje)
-    {
-        <div class="perfil-aviso perfil-aviso-exito">@mensaje</div>
-    }
-
-    @if (TempData["Error"] is string error)
-    {
-        <div class="perfil-aviso perfil-aviso-error">@error</div>
-    }
-
     <div class="perfil-columnas">
         <section class="tarjeta-cuenta">
             <h2>Datos personales</h2>

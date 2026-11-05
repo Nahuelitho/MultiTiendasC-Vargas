@@ -1,0 +1,32 @@
+@model MultiTenantCSharpVargas.Models.Vistas.TarjetaEmpresaVista
+
+<article class="tarjeta-catalogo tarjeta-empresa-catalogo">
+    <div class="tarjeta-cabecera">
+        <span class="tarjeta-distintivo" aria-hidden="true">@Model.Inicial</span>
+        <div class="tarjeta-titulo">
+            <h3>@Model.Nombre</h3>
+            <span class="tarjeta-ubicacion">@Model.Localidad</span>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+    {
+        <p class="tarjeta-descripcion">@Model.Descripcion</p>
+    }
+
+    <div class="tarjeta-datos">
+        <span><strong>@Model.CantidadProductos</strong> productos</span>
+        <span>@(Model.OfreceDelivery ? "Con delivery" : "Sin delivery")</span>
+        @if (Model.CantidadValoraciones > 0)
+        {
+            <span class="tarjeta-rating">★ @Model.PromedioValoracion.ToString("0.0") (@Model.CantidadValoraciones)</span>
+        }
+    </div>
+
+    @if (Model.EstaValidada)
+    {
+        <span class="sello-validada">Validada por la comunidad</span>
+    }
+
+    <span class="tarjeta-ver-mas">Ver comercio →</span>
+</article>

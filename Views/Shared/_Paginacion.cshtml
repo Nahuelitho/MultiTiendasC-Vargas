@@ -1,0 +1,31 @@
+@model MultiTenantCSharpVargas.Models.Vistas.PaginacionVista
+
+@if (Model.TotalPaginas > 1)
+{
+    <nav class="paginacion" aria-label="Paginación del catálogo">
+        @if (Model.Pagina > 1)
+        {
+            <a class="pagina-anterior" asp-action="Inicio"
+               asp-route-vista="@Model.Vista"
+               asp-route-q="@Model.Busqueda"
+               asp-route-pagina="@(Model.Pagina - 1)">← Anterior</a>
+        }
+
+        @for (var numero = 1; numero <= Model.TotalPaginas; numero++)
+        {
+            <a class="pagina-numero @(numero == Model.Pagina ? "activa" : string.Empty)"
+               asp-action="Inicio"
+               asp-route-vista="@Model.Vista"
+               asp-route-q="@Model.Busqueda"
+               asp-route-pagina="@numero">@numero</a>
+        }
+
+        @if (Model.Pagina < Model.TotalPaginas)
+        {
+            <a class="pagina-siguiente" asp-action="Inicio"
+               asp-route-vista="@Model.Vista"
+               asp-route-q="@Model.Busqueda"
+               asp-route-pagina="@(Model.Pagina + 1)">Siguiente →</a>
+        }
+    </nav>
+}

@@ -10,7 +10,12 @@
 }
 
 <div class="panel-comerciante">
-    <h2>Panel Comerciante</h2>
+    <div class="panel-cabecera">
+        <div>
+            <span class="etiqueta-seccion">Panel comerciante</span>
+            <h1>Mi comercio</h1>
+        </div>
+    </div>
 
     @if (Model == null)
     {
@@ -21,6 +26,21 @@
     }
     else
     {
+        <div class="tarjetas-resumen">
+            <div class="tarjeta-resumen">
+                <span class="numero">@Model.Productos.Count(p => p.Activo)</span>
+                <span class="etiqueta">Productos activos</span>
+            </div>
+            <div class="tarjeta-resumen">
+                <span class="numero">@Model.Productos.Count</span>
+                <span class="etiqueta">Productos totales</span>
+            </div>
+            <div class="tarjeta-resumen">
+                <span class="numero">@Model.Estado</span>
+                <span class="etiqueta">Estado de la empresa</span>
+            </div>
+        </div>
+
         <div class="tarjeta-empresa">
             <h3>@Model.Nombre</h3>
 
@@ -35,8 +55,21 @@
 
             @if (Model.Estado == EstadoEmpresa.Pendiente)
             {
-                <p class="aviso">Tu empresa está pendiente de aprobación por el Super Administrador.</p>
+                <p class="aviso">Tu empresa está pendiente de aprobación por el Super Administrador. Podés cargar productos mientras esperás.</p>
             }
+            else if (Model.Estado == EstadoEmpresa.Suspendida)
+            {
+                <p class="aviso">Tu empresa está suspendida: sus productos no aparecen en el catálogo público.</p>
+            }
+
+            <div class="acciones-panel">
+                <a class="boton-principal" asp-action="Productos">Gestionar productos</a>
+                <a asp-action="CrearProducto">Agregar producto</a>
+                @if (Model.Estado == EstadoEmpresa.Activa)
+                {
+                    <a asp-controller="Inicio" asp-action="Empresa" asp-route-id="@Model.Id" target="_blank" rel="noopener">Ver en el catálogo</a>
+                }
+            </div>
         </div>
     }
 </div>

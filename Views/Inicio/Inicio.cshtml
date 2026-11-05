@@ -1,16 +1,119 @@
-﻿@{
-    ViewData["Title"] = "Inicio";
+﻿@model MultiTenantCSharpVargas.Models.Vistas.CatalogoVista
+@using MultiTenantCSharpVargas.Models.Vistas
+
+@{
+    ViewData["Title"] = Model.ViendoEmpresas ? "Comercios" : "Productos";
+    var paginacion = new PaginacionVista
+    {
+        Pagina = Model.Pagina,
+        TotalPaginas = Model.TotalPaginas,
+        Vista = Model.Vista,
+        Busqueda = Model.Busqueda
+    };
 }
 
-<section class="pagina-inicio" aria-labelledby="titulo-empresas">
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/catalogo.css" asp-append-version="true" />
+}
+
+<section class="pagina-inicio">
     <div class="encabezado-seccion">
-        <span class="etiqueta-seccion">Primer paso</span>
-        <h1 id="titulo-empresas">Comercios disponibles</h1>
-        <p>Encontrá productos y negocios cerca tuyo.</p>
+        <span class="etiqueta-seccion">Catálogo</span>
+        <h1>@(Model.ViendoEmpresas ? "Comercios disponibles" : "Productos disponibles")</h1>
+        <p>
+            @(Model.ViendoEmpresas
+                ? "Encontrá comercios de tu zona y mirá qué ofrecen."
+                : "Explorá productos de todos los comercios activos.")
+        </p>
     </div>
 
-    <section class="estado-vacio" aria-labelledby="titulo-estado-vacio">
-        <h2 id="titulo-estado-vacio">Aún no hay comercios disponibles</h2>
-        <p>Estamos preparando la conexión con los comercios. Volvé pronto para descubrir negocios cerca tuyo.</p>
-    </section>
+    <nav class="pestanas-catalogo" aria-label="Formas de ver el catálogo">
+        <a class="pestana @(Model.ViendoEmpresas ? "activa" : string.Empty)"
+           asp-action="Inicio" asp-route-vista="empresas" asp-route-q="@Model.Busqueda">
+            Por empresa
+        </a>
+        <a class="pestana @(!Model.ViendoEmpresas ? "activa" : string.Empty)"
+           asp-action="Inicio" asp-route-vista="productos" asp-route-q="@Model.Busqueda">
+            Por producto
+        </a>
+    </nav>
+
+    <form class="buscador-catalogo" method="get" asp-action="Inicio" role="search">
+        <input type="hidden" name="vista" value="@Model.Vista" />
+        <label class="oculto" for="q">Buscar en el catálogo</label>
+        <input id="q" name="q" type="search" value="@Model.Busqueda"
+               placeholder="@(Model.ViendoEmpresas ? "Buscar por nombre o localidad" : "Buscar producto, comercio o localidad")" />
+        <button type="submit" class="boton-principal">Buscar</button>
+        @if (Model.Busqueda is not null)
+        {
+            <a class="limpiar-busqueda" asp-action="Inicio" asp-route-vista="@Model.Vista">Limpiar</a>
+        }
+    </form>
+
+    @if (Model.MensajeError is not null)
+    {
+        <div class="alerta-global alerta-global-error" role="alert">@Model.MensajeError</div>
+    }
+
+    <p class="catalogo-resumen">
+        @Model.TotalRegistros
+        @(Model.ViendoEmpresas ? "comercio(s) encontrado(s)" : "producto(s) encontrado(s)")
+        @if (Model.Busqueda is not null)
+        {
+            <span> para “@Model.Busqueda”</span>
+        }
+    </p>
+
+    @if (Model.ViendoEmpresas)
+    {
+        @if (Model.Empresas.Count == 0)
+        {
+            <section class="estado-vacio">
+                <h2>No hay comercios para mostrar</h2>
+                <p>
+                    @(Model.Busqueda is not null
+                        ? "Probá con otra búsqueda o mirá todos los comercios."
+                        : "Todavía no hay comercios aprobados. Volvé pronto para descubrir negocios cerca tuyo.")
+                </p>
+            </section>
+        }
+        else
+        {
+            <div class="grilla-tarjetas">
+                @foreach (var empresa in Model.Empresas)
+                {
+                    <a class="tarjeta-enlace" asp-action="Empresa" asp-route-id="@empresa.Id">
+                        <partial name="_TarjetaEmpresa" model="empresa" />
+                    </a>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        @if (Model.Productos.Count == 0)
+        {
+            <section class="estado-vacio">
+                <h2>No hay productos para mostrar</h2>
+                <p>
+                    @(Model.Busqueda is not null
+                        ? "Probá con otra búsqueda o mirá todos los productos."
+                        : "Todavía no hay productos publicados por comercios activos.")
+                </p>
+            </section>
+        }
+        else
+        {
+            <div class="grilla-tarjetas">
+                @foreach (var producto in Model.Productos)
+                {
+                    <a class="tarjeta-enlace" asp-action="Producto" asp-route-id="@producto.Id">
+                        <partial name="_TarjetaProducto" model="producto" />
+                    </a>
+                }
+            </div>
+        }
+    }
+
+    <partial name="_Paginacion" model="paginacion" />
 </section>

@@ -19,6 +19,14 @@
             <span class="etiqueta">Empresas registradas</span>
         </div>
         <div class="tarjeta-resumen">
+            <span class="numero">@ViewBag.TotalEmpresasPendientes</span>
+            <span class="etiqueta">Empresas pendientes</span>
+        </div>
+        <div class="tarjeta-resumen">
+            <span class="numero">@ViewBag.TotalRoles</span>
+            <span class="etiqueta">Roles del sistema</span>
+        </div>
+        <div class="tarjeta-resumen">
             <span class="numero">@ViewBag.TotalPedidos</span>
             <span class="etiqueta">Pedidos realizados</span>
         </div>
@@ -26,7 +34,9 @@
 
     <div class="acciones-panel">
         <a asp-action="Usuarios">Gestionar usuarios</a>
-        <a asp-action="Empresas">Ver empresas</a>
+        <a asp-action="Roles">Gestionar roles</a>
+        <a asp-action="Empresas">Empresas y aprobaciones</a>
         <a asp-action="CrearUsuario">Crear usuario</a>
+        <a asp-action="CrearRol">Crear rol</a>
     </div>
 </div>

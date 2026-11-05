@@ -126,10 +126,21 @@ public class PerfilController(ContextoAplicacion db, IWebHostEnvironment entorno
             return;
         }
 
-        var ruta = Path.Combine(entorno.WebRootPath, url.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-        if (System.IO.File.Exists(ruta))
+        try
         {
-            System.IO.File.Delete(ruta);
+            var raiz = Path.GetFullPath(entorno.WebRootPath) + Path.DirectorySeparatorChar;
+            var ruta = Path.GetFullPath(Path.Combine(
+                entorno.WebRootPath,
+                url.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)));
+
+            if (ruta.StartsWith(raiz, StringComparison.OrdinalIgnoreCase) && System.IO.File.Exists(ruta))
+            {
+                System.IO.File.Delete(ruta);
+            }
+        }
+        catch (IOException)
+        {
+            // La foto anterior puede estar en uso; no se interrumpe la actualización.
         }
     }
 }

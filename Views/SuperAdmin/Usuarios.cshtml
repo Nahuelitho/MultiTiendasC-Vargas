@@ -11,7 +11,11 @@
 <div class="panel-admin">
     <h2>Usuarios</h2>
 
-    <a class="boton-principal" asp-action="CrearUsuario">Crear usuario</a>
+    <div class="acciones-panel">
+        <a class="boton-principal" asp-action="CrearUsuario">Crear usuario</a>
+        <a asp-action="Roles">Gestionar roles</a>
+        <a asp-action="Index">Volver al panel</a>
+    </div>
 
     <table class="tabla-admin">
         <thead>
@@ -19,6 +23,7 @@
                 <th>Nombre</th>
                 <th>Correo</th>
                 <th>Rol</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -28,10 +33,17 @@
                     <td>@usuario.Nombre</td>
                     <td>@usuario.Correo</td>
                     <td>
+                        @if (usuario.UsuarioRoles.Count == 0)
+                        {
+                            <span class="texto-tenue">Sin rol</span>
+                        }
                         @foreach (var usuarioRol in usuario.UsuarioRoles)
                         {
                             <span class="rol-etiqueta">@usuarioRol.Rol.Nombre</span>
                         }
+                    </td>
+                    <td>
+                        <a class="enlace-accion" asp-action="UsuarioRoles" asp-route-id="@usuario.Id">Gestionar roles</a>
                     </td>
                 </tr>
             }

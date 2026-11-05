@@ -1,0 +1,38 @@
+@model MultiTenantCSharpVargas.Models.Vistas.TarjetaProductoVista
+
+<article class="tarjeta-catalogo tarjeta-producto-catalogo @(Model.Activo ? string.Empty : "tarjeta-inactiva")">
+    <div class="tarjeta-imagen-contenedor">
+        @if (!string.IsNullOrWhiteSpace(Model.RutaImagen))
+        {
+            <img src="@Model.RutaImagen" alt="@Model.Nombre" loading="lazy" />
+        }
+        else
+        {
+            <span class="tarjeta-imagen-vacia" aria-hidden="true">@Model.Inicial</span>
+        }
+
+        @if (!Model.Activo)
+        {
+            <span class="etiqueta-inactiva">Inactivo</span>
+        }
+    </div>
+
+    <div class="tarjeta-cuerpo">
+        <span class="tarjeta-etiqueta">@Model.EmpresaNombre</span>
+        <h3>@Model.Nombre</h3>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+        {
+            <p class="tarjeta-descripcion">@Model.Descripcion</p>
+        }
+
+        <div class="tarjeta-pie">
+            <span class="tarjeta-precio">$ @Model.Precio.ToString("N2")</span>
+            <span class="tarjeta-stock @(Model.TieneStock ? string.Empty : "sin-stock")">
+                @(Model.TieneStock ? $"Stock: {Model.Stock}" : "Sin stock")
+            </span>
+        </div>
+
+        <span class="tarjeta-ubicacion">@Model.Localidad</span>
+    </div>
+</article>

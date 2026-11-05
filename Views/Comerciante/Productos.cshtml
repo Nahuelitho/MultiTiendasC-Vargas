@@ -1,0 +1,66 @@
+@model IEnumerable<MultiTenantCSharpVargas.Models.Vistas.TarjetaProductoVista>
+@using MultiTenantCSharpVargas.Models
+@using MultiTenantCSharpVargas.Models.Vistas
+
+@{
+    ViewData["Title"] = "Mis productos";
+    var empresa = ViewBag.Empresa as Empresa;
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-comerciante.css" asp-append-version="true" />
+}
+
+<div class="panel-comerciante panel-comerciante-ancho">
+    <div class="panel-cabecera">
+        <div>
+            <span class="etiqueta-seccion">Panel comerciante</span>
+            <h1>Mis productos</h1>
+            @if (empresa is not null)
+            {
+                <p class="texto-tenue">@empresa.Nombre · @empresa.Localidad</p>
+            }
+        </div>
+
+        <div class="acciones-panel">
+            <a class="boton-principal" asp-action="CrearProducto">Nuevo producto</a>
+            <a asp-action="Index">Volver al panel</a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="tarjeta-vacia">
+            <p>Todavía no cargaste productos.</p>
+            <a class="boton-principal" asp-action="CrearProducto">Crear mi primer producto</a>
+        </div>
+    }
+    else
+    {
+        <div class="grilla-tarjetas">
+            @foreach (var producto in Model)
+            {
+                <div class="tarjeta-gestion">
+                    <partial name="_TarjetaProducto" model="producto" />
+
+                    <div class="acciones-tarjeta">
+                        <a class="enlace-accion" asp-action="EditarProducto" asp-route-id="@producto.Id">Editar</a>
+
+                        <form asp-action="CambiarEstadoProducto" method="post">
+                            <input type="hidden" name="id" value="@producto.Id" />
+                            <button type="submit" class="boton-tabla">
+                                @(producto.Activo ? "Dar de baja" : "Activar")
+                            </button>
+                        </form>
+
+                        <form asp-action="EliminarProducto" method="post"
+                              onsubmit="return confirm('¿Eliminar el producto «@producto.Nombre»? Si tiene pedidos o denuncias se dará de baja sin borrar el historial.');">
+                            <input type="hidden" name="id" value="@producto.Id" />
+                            <button type="submit" class="boton-tabla boton-peligro">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

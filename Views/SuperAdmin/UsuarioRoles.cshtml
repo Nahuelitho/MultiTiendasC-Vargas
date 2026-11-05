@@ -1,0 +1,85 @@
+@model MultiTenantCSharpVargas.Models.Usuario
+
+@{
+    ViewData["Title"] = "Roles del usuario";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+}
+
+<div class="panel-admin">
+    <h2>Roles de @Model.Nombre</h2>
+    <p class="texto-tenue">@Model.Correo</p>
+
+    <div class="acciones-panel">
+        <a asp-action="Usuarios">Volver a usuarios</a>
+        <a asp-action="Roles">Gestionar roles</a>
+    </div>
+
+    <table class="tabla-admin">
+        <thead>
+            <tr>
+                <th>Rol</th>
+                <th>Código</th>
+                <th>Alcance</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.UsuarioRoles.Count == 0)
+            {
+                <tr>
+                    <td colspan="4" class="texto-tenue">El usuario no tiene roles asignados.</td>
+                </tr>
+            }
+            @foreach (var usuarioRol in Model.UsuarioRoles)
+            {
+                <tr>
+                    <td>@usuarioRol.Rol.Nombre</td>
+                    <td><code>@usuarioRol.Rol.Codigo</code></td>
+                    <td>@(usuarioRol.Empresa?.Nombre ?? "Global")</td>
+                    <td>
+                        <form asp-action="QuitarRol" method="post">
+                            <input type="hidden" name="id" value="@usuarioRol.Id" />
+                            <button type="submit" class="boton-tabla boton-peligro">Quitar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <section class="tarjeta-cuenta formulario-rol">
+        <h3>Asignar un rol</h3>
+
+        <form asp-action="AsignarRol" method="post">
+            <input type="hidden" name="usuarioId" value="@Model.Id" />
+
+            <div class="campo">
+                <label for="rolId">Rol</label>
+                <select id="rolId" name="rolId" required>
+                    @foreach (var rol in ViewBag.Roles)
+                    {
+                        <option value="@rol.Id">@rol.Nombre (@rol.Codigo)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="empresaId">Alcance</label>
+                <select id="empresaId" name="empresaId">
+                    <option value="">Global (sin empresa)</option>
+                    @foreach (var empresa in ViewBag.Empresas)
+                    {
+                        <option value="@empresa.Id">@empresa.Nombre</option>
+                    }
+                </select>
+                <span class="texto-tenue">El rol SUPER_ADMIN siempre se guarda como global.</span>
+            </div>
+
+            <button type="submit">Asignar rol</button>
+        </form>
+    </section>
+</div>

@@ -1,0 +1,40 @@
+@model MultiTenantCSharpVargas.Models.Producto
+
+@{
+    ViewData["Title"] = "Editar producto";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/formulario-producto.css" asp-append-version="true" />
+}
+
+<div class="formulario-producto">
+    <div class="formulario-cabecera">
+        <span class="etiqueta-seccion">Panel comerciante</span>
+        <h1>Editar producto</h1>
+        <p>@Model.Nombre</p>
+    </div>
+
+    <form asp-action="EditarProducto" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="alerta-error"></div>
+
+        <partial name="_CamposProducto" model="Model" />
+
+        <div class="campo">
+            <label for="imagenes">Agregar imágenes</label>
+            <input id="imagenes" name="imagenes" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" multiple />
+            <span class="texto-tenue">Podés sumar hasta 6 imágenes por producto. Formatos: JPG, PNG, WEBP o GIF (máx. 2 MB).</span>
+        </div>
+
+        <div class="acciones-formulario">
+            <button type="submit" class="boton-principal">Guardar cambios</button>
+            <a class="boton-secundario-enlace" asp-action="Productos">Cancelar</a>
+        </div>
+    </form>
+
+    <section class="galeria-producto-seccion">
+        <h2>Imágenes actuales</h2>
+        <partial name="_GaleriaProducto" model="Model" />
+    </section>
+</div>

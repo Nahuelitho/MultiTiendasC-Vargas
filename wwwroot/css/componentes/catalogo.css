@@ -1,0 +1,240 @@
+/* Catálogo público: pestañas, búsqueda y detalles */
+.pestanas-catalogo {
+  display: inline-flex;
+  gap: .35rem;
+  margin-bottom: 1rem;
+  padding: .3rem;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--blanco);
+}
+
+.pestana {
+  padding: .5rem 1rem;
+  border-radius: 7px;
+  color: var(--gris-texto);
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.pestana:hover {
+  color: var(--naranja-oscuro);
+}
+
+.pestana.activa {
+  background: var(--naranja-principal);
+  color: var(--blanco);
+}
+
+.buscador-catalogo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: 1rem;
+}
+
+.buscador-catalogo input[type="search"] {
+  flex: 1 1 260px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--borde);
+  border-radius: 7px;
+  background: var(--blanco);
+  outline: 0;
+}
+
+.buscador-catalogo input[type="search"]:focus {
+  border-color: var(--naranja-principal);
+  box-shadow: 0 0 0 3px rgba(242, 140, 40, .16);
+}
+
+.limpiar-busqueda {
+  color: var(--gris-texto);
+  font-size: .85rem;
+  text-decoration: underline;
+}
+
+.catalogo-resumen {
+  margin: 0 0 1.2rem;
+  color: var(--gris-texto);
+  font-size: .85rem;
+}
+
+/* Migas de navegación */
+.migas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  margin-bottom: 1.2rem;
+  color: var(--gris-texto);
+  font-size: .85rem;
+}
+
+.migas a {
+  color: var(--naranja-oscuro);
+  font-weight: 600;
+}
+
+.migas a:hover {
+  text-decoration: underline;
+}
+
+/* Detalle de empresa */
+.detalle-encabezado {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detalle-encabezado h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  letter-spacing: -.04em;
+}
+
+.detalle-distintivo {
+  width: 72px;
+  height: 72px;
+  font-size: 1.8rem;
+}
+
+.detalle-ubicacion {
+  margin: .25rem 0 .5rem;
+  color: var(--gris-texto);
+}
+
+.detalle-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+
+.detalle-dato {
+  color: var(--gris-texto);
+  font-size: .8rem;
+}
+
+.detalle-columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, .9fr);
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+  align-items: start;
+}
+
+.detalle-descripcion,
+.detalle-contacto {
+  padding: 1.2rem;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--blanco);
+}
+
+.detalle-descripcion h2,
+.detalle-contacto h2,
+.detalle-productos h2 {
+  margin: 0 0 .7rem;
+  font-size: 1.1rem;
+}
+
+.detalle-descripcion p {
+  margin: 0;
+  color: var(--gris-texto);
+  line-height: 1.55;
+}
+
+.detalle-contacto ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.detalle-contacto li {
+  padding: .35rem 0;
+  border-bottom: 1px solid var(--borde);
+  color: var(--gris-texto);
+  font-size: .87rem;
+}
+
+.detalle-contacto li:last-child {
+  border-bottom: 0;
+}
+
+.detalle-contacto strong {
+  color: var(--azul-texto);
+}
+
+.detalle-productos .encabezado-seccion {
+  margin-top: 1rem;
+}
+
+/* Detalle de producto */
+.detalle-producto {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(280px, 1.1fr);
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+
+.detalle-producto-imagen {
+  display: grid;
+  min-height: 300px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--celeste-claro);
+}
+
+.detalle-producto-imagen img {
+  width: 100%;
+  height: 100%;
+  max-height: 440px;
+  object-fit: cover;
+}
+
+.detalle-producto-info h1 {
+  margin: .2rem 0 .6rem;
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  letter-spacing: -.04em;
+}
+
+.detalle-precio {
+  margin: 0;
+  color: var(--naranja-oscuro);
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.detalle-stock {
+  margin: .25rem 0 1rem;
+  color: #1b6b3a;
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.detalle-stock.sin-stock {
+  color: #a11;
+}
+
+.detalle-texto {
+  color: var(--gris-texto);
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.detalle-contacto-producto {
+  max-width: 620px;
+}
+
+@media (max-width: 780px) {
+  .detalle-columnas,
+  .detalle-producto {
+    grid-template-columns: 1fr;
+  }
+}

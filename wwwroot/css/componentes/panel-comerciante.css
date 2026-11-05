@@ -1,11 +1,86 @@
 .panel-comerciante {
-    width: min(720px, calc(100% - 32px));
+    width: min(820px, calc(100% - 32px));
     margin: 2rem auto;
 }
 
+.panel-comerciante-ancho {
+    width: min(1120px, calc(100% - 32px));
+}
+
+.panel-comerciante h1,
 .panel-comerciante h2 {
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 .35rem 0;
     color: var(--azul-texto);
+}
+
+.panel-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.panel-cabecera .acciones-panel {
+    margin-bottom: 0;
+}
+
+.tarjetas-resumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tarjeta-resumen {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    padding: 1.1rem;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--blanco);
+}
+
+.tarjeta-resumen .numero {
+    color: var(--naranja-principal);
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.tarjeta-resumen .etiqueta {
+    color: var(--gris-texto);
+    font-size: .82rem;
+}
+
+.tarjeta-gestion {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--blanco);
+    overflow: hidden;
+}
+
+.tarjeta-gestion .tarjeta-catalogo {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.acciones-tarjeta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1rem;
+    border-top: 1px solid var(--borde);
+    background: var(--gris-fondo);
+}
+
+.acciones-tarjeta form {
+    margin: 0;
 }
 
 .tarjeta-vacia,

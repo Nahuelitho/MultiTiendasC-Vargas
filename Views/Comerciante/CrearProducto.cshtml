@@ -1,0 +1,35 @@
+@model MultiTenantCSharpVargas.Models.Producto
+
+@{
+    ViewData["Title"] = "Nuevo producto";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/tarjeta-cuenta.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/formulario-producto.css" asp-append-version="true" />
+}
+
+<div class="formulario-producto">
+    <div class="formulario-cabecera">
+        <span class="etiqueta-seccion">Panel comerciante</span>
+        <h1>Nuevo producto</h1>
+        <p>Completá los datos y agregá hasta 6 imágenes de hasta 2 MB cada una.</p>
+    </div>
+
+    <form asp-action="CrearProducto" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="alerta-error"></div>
+
+        <partial name="_CamposProducto" model="Model" />
+
+        <div class="campo">
+            <label for="imagenes">Imágenes</label>
+            <input id="imagenes" name="imagenes" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" multiple />
+            <span class="texto-tenue">Formatos: JPG, PNG, WEBP o GIF. La primera imagen será la principal.</span>
+        </div>
+
+        <div class="acciones-formulario">
+            <button type="submit" class="boton-principal">Crear producto</button>
+            <a class="boton-secundario-enlace" asp-action="Productos">Cancelar</a>
+        </div>
+    </form>
+</div>
