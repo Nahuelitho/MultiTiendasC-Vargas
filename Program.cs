@@ -1,100 +1,74 @@
-using System.Globalization;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MultiTenantCSharpVargas.Data;
 using MultiTenantCSharpVargas.Services;
-using Microsoft.AspNetCore.HttpOverrides;
+using System.Text;
 
-// Evita ambigüedades al interpretar decimales enviados por formularios HTML
-// (los inputs numéricos siempre usan punto como separador decimal).
-CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+var builder = WebApplication.CreateBuilder(args);
 
-var constructor = WebApplication.CreateBuilder(args);
-constructor.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+// DB
+var conn = builder.Configuration.GetConnectionString("BaseDeDatos") 
+           ?? builder.Configuration["ConnectionStrings__BaseDeDatos"]
+           ?? "Server=localhost;Port=3306;Database=tu_tienda_cerca;User ID=root;Password=root;";
+builder.Services.AddDbContext<ContextoAplicacion>(opt => 
+    opt.UseMySql(conn, ServerVersion.AutoDetect(conn)));
 
-constructor.Services.AddControllersWithViews(opciones =>
-{
-    // Las propiedades de navegación de EF no llegan en los formularios:
-    // no deben validarse como campos obligatorios.
-    opciones.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
-});
-constructor.Services.AddScoped<ServicioSesion>();
-constructor.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(opciones =>
-    {
-        opciones.LoginPath = "/Cuenta/Login";
-        opciones.LogoutPath = "/Cuenta/Logout";
-        opciones.AccessDeniedPath = "/Cuenta/AccesoDenegado";
-        opciones.Cookie.HttpOnly = true;
-        opciones.Cookie.SameSite = SameSiteMode.Lax;
-        opciones.ExpireTimeSpan = TimeSpan.FromHours(8);
-        opciones.SlidingExpiration = true;
+// Servicios tuyos
+builder.Services.AddScoped<ServicioSesion>();
+builder.Services.AddScoped<ServicioJwt>();
+
+// AUTH DUAL: Cookies para MVC + JWT para API
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "ClaveSuperSecretaDe32CaracteresMinimo123!";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "TuTiendaCerca";
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, opt => {
+        opt.LoginPath = "/Cuenta/Login";
+        opt.AccessDeniedPath = "/Cuenta/AccesoDenegado";
+    })
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt => {
+        opt.TokenValidationParameters = new TokenValidationParameters {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "TuTiendaCercaApp",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
     });
 
-constructor.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-});
+builder.Services.AddAuthorization();
+builder.Services.AddControllersWithViews();
+builder.Services.AddCors(o => o.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
-var cadenaConexion = constructor.Configuration.GetConnectionString("BaseDeDatos");
-if (!string.IsNullOrWhiteSpace(cadenaConexion))
-{
-    constructor.Services.AddDbContext<ContextoAplicacion>(opciones =>
-        opciones.UseMySql(cadenaConexion, ServerVersion.AutoDetect(cadenaConexion)));
-}
+var app = builder.Build();
 
-var aplicacion = constructor.Build();
-
-// Aplica migraciones solo si hay DB configurada
-using (var scope = aplicacion.Services.CreateScope())
-{
-    var registro = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    var db = scope.ServiceProvider.GetService<ContextoAplicacion>();
-    if (db != null)
-    {
-        try
-        {
-            db.Database.Migrate();
-            registro.LogInformation("Migraciones aplicadas correctamente.");
-        }
-        catch (Exception ex)
-        {
-            // No se corta el arranque: la aplicación muestra un error amigable
-            // en las páginas que necesitan la base de datos.
-            registro.LogError(ex, "No se pudieron aplicar las migraciones de la base de datos.");
-        }
-    }
-    else
-    {
-        registro.LogWarning("ContextoAplicacion no registrado: falta ConnectionStrings:BaseDeDatos.");
+// Migraciones auto
+using(var scope = app.Services.CreateScope()){
+    try{
+        var ctx = scope.ServiceProvider.GetRequiredService<ContextoAplicacion>();
+        ctx.Database.Migrate();
+    }catch(Exception ex){
+        Console.WriteLine($"Migración falló: {ex.Message}");
     }
 }
 
-aplicacion.UseForwardedHeaders();
-
-if (aplicacion.Environment.IsDevelopment())
-{
-    aplicacion.UseDeveloperExceptionPage();
+if (!app.Environment.IsDevelopment()){
+    app.UseExceptionHandler("/Inicio/Error");
+    app.UseHsts();
+}else{
+    app.UseDeveloperExceptionPage();
 }
-else
-{
-    // Errores no controlados -> vista amigable sin exponer detalles internos.
-    aplicacion.UseExceptionHandler("/Inicio/Error");
-    aplicacion.UseHsts();
-}
-
-// 404, 400, 403, etc. -> misma vista de error con el código correspondiente.
-aplicacion.UseStatusCodePagesWithReExecute("/Inicio/Error/{0}");
-
-aplicacion.UseStaticFiles();
-aplicacion.UseRouting();
-aplicacion.UseAuthentication();
-aplicacion.UseAuthorization();
-
-aplicacion.MapControllers(); // <- agregalo por si tenes API
-aplicacion.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Inicio}/{action=Inicio}/{id?}");
-
-aplicacion.Run();
+app.UseStatusCodePagesWithReExecute("/Inicio/Error/{0}");
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllerRoute(name: "default", pattern: "{controller=Inicio}/{action=Inicio}/{id?}");
+app.MapControllers(); // Para API
+app.Run();

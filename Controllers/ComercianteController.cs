@@ -16,6 +16,7 @@ public class ComercianteController(
 {
     private const long TamanioMaximoImagen = 2 * 1024 * 1024;
     private const int MaximoImagenes = 6;
+    private const int TamanoPaginaProductos = 9;
     private static readonly string[] ExtensionesPermitidas = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
 
     private int UsuarioId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -94,7 +95,7 @@ public class ComercianteController(
 
     // ----------------------------- Productos -----------------------------
 
-    public async Task<IActionResult> Productos()
+    public async Task<IActionResult> Productos(int pagina = 1)
     {
         var empresa = await ObtenerEmpresaAsync();
         if (empresa is null)
@@ -103,16 +104,33 @@ public class ComercianteController(
             return RedirectToAction(nameof(Index));
         }
 
-        var productos = await db.Productos
+        var consulta = db.Productos
             .AsNoTracking()
             .Where(p => p.EmpresaId == empresa.Id)
             .Include(p => p.Empresa)
             .Include(p => p.Imagenes)
             .OrderByDescending(p => p.Activo)
-            .ThenBy(p => p.Nombre)
+            .ThenBy(p => p.Nombre);
+
+        var total = await consulta.CountAsync();
+        var totalPaginas = Math.Max(1, (int)Math.Ceiling(total / (double)TamanoPaginaProductos));
+        pagina = Math.Clamp(pagina, 1, totalPaginas);
+
+        var productos = await consulta
+            .Skip((pagina - 1) * TamanoPaginaProductos)
+            .Take(TamanoPaginaProductos)
             .ToListAsync();
 
         ViewBag.Empresa = empresa;
+        ViewBag.TotalRegistros = total;
+        ViewBag.Paginacion = new PaginacionVista
+        {
+            Pagina = pagina,
+            TotalPaginas = totalPaginas,
+            Controlador = "Comerciante",
+            Accion = nameof(Productos)
+        };
+
         return View(productos.Select(Mapear).ToList());
     }
 

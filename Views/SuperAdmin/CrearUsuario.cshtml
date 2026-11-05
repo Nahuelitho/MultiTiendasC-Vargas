@@ -37,18 +37,20 @@
                 }
             </select>
         </div>
-        <div class="campo">
-            <label>Empresa (opcional)</label>
-            <select name="empresaId">
-                <option value="">Sin empresa (alcance global)</option>
-                @foreach (var empresa in ViewBag.Empresas)
-                {
-                    <option value="@empresa.Id">@empresa.Nombre</option>
-                }
-            </select>
+        <div class="campo autocompletar" data-buscador-empresas>
+            <label for="empresaTexto">Empresa (opcional)</label>
+            <input type="text" id="empresaTexto" autocomplete="off"
+                   placeholder="Escribí para buscar una empresa..." data-buscador-texto />
+            <input type="hidden" name="empresaId" data-buscador-id />
+            <div class="sugerencias-empresa" data-buscador-sugerencias hidden></div>
+            <span class="texto-tenue">Sin empresa = alcance global.</span>
         </div>
         <button type="submit">Crear usuario</button>
     </form>
 
     <p><a asp-action="Usuarios">Volver a usuarios</a></p>
 </div>
+
+@section Scripts {
+    <script src="~/js/buscador-empresas.js" asp-append-version="true"></script>
+}

@@ -1,31 +1,50 @@
-@model MultiTenantCSharpVargas.Models.Vistas.PaginacionVista
+@model TuProyecto.ViewModels.PagedResult<object>
 
-@if (Model.TotalPaginas > 1)
+@{
+    var totalPages = Model.TotalPages;
+    var current   = Model.Page;
+    var size      = Model.PageSize;
+    var total     = Model.TotalItems;
+}
+
+<nav aria-label="Paginación">
+    <ul class="pagination">
+
+        <!-- Botón «Primera» -->
+        <li class="page-item @(current == 1 ? "disabled" : "")">
+            <a class="page-link" asp-route-page="1" asp-route-pageSize="@size">« Primera</a>
+        </li>
+
+        <!-- Botón «Anterior» -->
+        <li class="page-item @(current == 1 ? "disabled" : "")">
+            <a class="page-link" asp-route-page="@(current - 1)" asp-route-pageSize="@size">« Anterior</a>
+        </li>
+
+        @* Rango de números *@
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == current ? "active" : "")">
+                <a class="page-link" asp-route-page="@i" asp-route-pageSize="@size">@i</a>
+            </li>
+        }
+
+        <!-- Botón «Siguiente» -->
+        <li class="page-item @(current == totalPages ? "disabled" : "")">
+            <a class="page-link" asp-route-page="@(current + 1)" asp-route-pageSize="@size">Siguiente »</a>
+        </li>
+
+        <!-- Botón «Última» -->
+        <li class="page-item @(current == totalPages ? "disabled" : "")">
+            <a class="page-link" asp-route-page="@totalPages" asp-route-pageSize="@size">Última »</a>
+        </li>
+
+    </ul>
+</nav>
+
+@* Pequeña ayuda para que la URL mantenga los parámetros *@
+@if (total > size)
 {
-    <nav class="paginacion" aria-label="Paginación del catálogo">
-        @if (Model.Pagina > 1)
-        {
-            <a class="pagina-anterior" asp-action="Inicio"
-               asp-route-vista="@Model.Vista"
-               asp-route-q="@Model.Busqueda"
-               asp-route-pagina="@(Model.Pagina - 1)">← Anterior</a>
-        }
-
-        @for (var numero = 1; numero <= Model.TotalPaginas; numero++)
-        {
-            <a class="pagina-numero @(numero == Model.Pagina ? "activa" : string.Empty)"
-               asp-action="Inicio"
-               asp-route-vista="@Model.Vista"
-               asp-route-q="@Model.Busqueda"
-               asp-route-pagina="@numero">@numero</a>
-        }
-
-        @if (Model.Pagina < Model.TotalPaginas)
-        {
-            <a class="pagina-siguiente" asp-action="Inicio"
-               asp-route-vista="@Model.Vista"
-               asp-route-q="@Model.Busqueda"
-               asp-route-pagina="@(Model.Pagina + 1)">Siguiente →</a>
-        }
-    </nav>
+    <small class="text-muted">
+        Mostrando @size de @total registros
+    </small>
 }

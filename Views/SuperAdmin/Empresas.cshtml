@@ -15,8 +15,19 @@
     <div class="acciones-panel">
         <a asp-action="Index">Volver al panel</a>
         <a asp-action="Usuarios">Gestionar usuarios</a>
-        <a asp-action="Roles">Gestionar roles</a>
+        <a asp-action="RolesVue">Gestionar roles (Vue/AJAX)</a>
     </div>
+
+    <form class="buscador-admin" asp-action="Empresas" method="get" role="search">
+        <input type="search" name="q" value="@ViewBag.Busqueda" placeholder="Buscar por empresa, localidad o propietario..." />
+        <button type="submit" class="boton-tabla">Buscar</button>
+        @if (!string.IsNullOrEmpty(ViewBag.Busqueda as string))
+        {
+            <a asp-action="Empresas">Limpiar</a>
+        }
+    </form>
+
+    <p class="texto-tenue">@ViewBag.TotalRegistros empresas registradas.</p>
 
     <table class="tabla-admin">
         <thead>
@@ -84,4 +95,6 @@
             }
         </tbody>
     </table>
+
+    <partial name="_Paginacion" model="(MultiTenantCSharpVargas.Models.Vistas.PaginacionVista)ViewBag.Paginacion" />
 </div>

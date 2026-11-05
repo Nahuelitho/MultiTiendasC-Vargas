@@ -63,6 +63,8 @@
         }
 
         @RenderBody()
+
+        @await RenderSectionAsync("Scripts", required: false)
     </main>
 
     <footer class="pie">

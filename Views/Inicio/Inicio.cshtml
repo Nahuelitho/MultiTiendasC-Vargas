@@ -3,10 +3,23 @@
 
 @{
     ViewData["Title"] = Model.ViendoEmpresas ? "Comercios" : "Productos";
+    var parametrosPaginacion = new Dictionary<string, string>
+    {
+        ["vista"] = Model.Vista
+    };
+
+    if (!string.IsNullOrWhiteSpace(Model.Busqueda))
+    {
+        parametrosPaginacion["q"] = Model.Busqueda;
+    }
+
     var paginacion = new PaginacionVista
     {
         Pagina = Model.Pagina,
         TotalPaginas = Model.TotalPaginas,
+        Controlador = "Inicio",
+        Accion = "Inicio",
+        Parametros = parametrosPaginacion,
         Vista = Model.Vista,
         Busqueda = Model.Busqueda
     };

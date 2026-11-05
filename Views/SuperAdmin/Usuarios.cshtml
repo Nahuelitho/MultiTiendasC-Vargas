@@ -14,8 +14,11 @@
     <div class="acciones-panel">
         <a class="boton-principal" asp-action="CrearUsuario">Crear usuario</a>
         <a asp-action="Roles">Gestionar roles</a>
+        <a asp-action="RolesVue">Roles con Vue/AJAX</a>
         <a asp-action="Index">Volver al panel</a>
     </div>
+
+    <p class="texto-tenue">@ViewBag.TotalRegistros usuarios registrados.</p>
 
     <table class="tabla-admin">
         <thead>
@@ -49,4 +52,6 @@
             }
         </tbody>
     </table>
+
+    <partial name="_Paginacion" model="(MultiTenantCSharpVargas.Models.Vistas.PaginacionVista)ViewBag.Paginacion" />
 </div>

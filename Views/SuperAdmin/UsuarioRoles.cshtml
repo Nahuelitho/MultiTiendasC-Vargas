@@ -67,19 +67,20 @@
                 </select>
             </div>
 
-            <div class="campo">
-                <label for="empresaId">Alcance</label>
-                <select id="empresaId" name="empresaId">
-                    <option value="">Global (sin empresa)</option>
-                    @foreach (var empresa in ViewBag.Empresas)
-                    {
-                        <option value="@empresa.Id">@empresa.Nombre</option>
-                    }
-                </select>
-                <span class="texto-tenue">El rol SUPER_ADMIN siempre se guarda como global.</span>
+            <div class="campo autocompletar" data-buscador-empresas>
+                <label for="empresaTexto">Alcance (empresa)</label>
+                <input type="text" id="empresaTexto" autocomplete="off"
+                       placeholder="Escribí para buscar una empresa..." data-buscador-texto />
+                <input type="hidden" name="empresaId" data-buscador-id />
+                <div class="sugerencias-empresa" data-buscador-sugerencias hidden></div>
+                <span class="texto-tenue">Dejalo vacío para alcance global. El rol SUPER_ADMIN siempre se guarda como global.</span>
             </div>
 
             <button type="submit">Asignar rol</button>
         </form>
     </section>
 </div>
+
+@section Scripts {
+    <script src="~/js/buscador-empresas.js" asp-append-version="true"></script>
+}
