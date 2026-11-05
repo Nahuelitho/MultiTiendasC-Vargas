@@ -28,6 +28,7 @@ public class ComercianteController(ContextoAplicacion db) : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CrearEmpresa(Empresa empresa)
     {
         if (await db.Empresas.AnyAsync(e => e.PropietarioId == UsuarioId))
@@ -35,6 +36,20 @@ public class ComercianteController(ContextoAplicacion db) : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        empresa.Nombre = empresa.Nombre?.Trim() ?? string.Empty;
+        empresa.Descripcion = string.IsNullOrWhiteSpace(empresa.Descripcion) ? null : empresa.Descripcion.Trim();
+        empresa.Direccion = empresa.Direccion?.Trim() ?? string.Empty;
+        empresa.Localidad = empresa.Localidad?.Trim() ?? string.Empty;
+        empresa.Telefono = string.IsNullOrWhiteSpace(empresa.Telefono) ? null : empresa.Telefono.Trim();
+        empresa.MediosDePago = string.IsNullOrWhiteSpace(empresa.MediosDePago) ? null : empresa.MediosDePago.Trim();
+
+        if (!ModelState.IsValid)
+        {
+            return View(empresa);
+        }
+
+        // Ignora cualquier identificador enviado por el navegador.
+        empresa.Id = 0;
         empresa.PropietarioId = UsuarioId;
         empresa.Estado = EstadoEmpresa.Pendiente;
         empresa.FechaAlta = DateTime.UtcNow;

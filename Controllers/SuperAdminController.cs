@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,22 +35,53 @@ public class SuperAdminController(ContextoAplicacion db) : Controller
         return View(empresas);
     }
 
-    public IActionResult CrearUsuario()
+    public async Task<IActionResult> CrearUsuario()
     {
-        ViewBag.Roles = db.Roles.OrderBy(r => r.Id).ToList();
-        ViewBag.Empresas = db.Empresas.OrderBy(e => e.Nombre).ToList();
+        await PrepararCombosAsync();
         return View();
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CrearUsuario(string nombre, string correo, string contrasena, int rolId, int? empresaId)
     {
+        nombre = nombre?.Trim() ?? string.Empty;
+        correo = correo?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
+        {
+            return await VolverConErrorAsync("Todos los campos son obligatorios.");
+        }
+
+        if (!new EmailAddressAttribute().IsValid(correo))
+        {
+            return await VolverConErrorAsync("Ingresá un correo electrónico válido.");
+        }
+
+        if (contrasena.Length < 6)
+        {
+            return await VolverConErrorAsync("La contraseña debe tener al menos 6 caracteres.");
+        }
+
         if (await db.Usuarios.AnyAsync(u => u.Correo == correo))
         {
-            ViewData["Error"] = "Ya existe un usuario con ese correo.";
-            ViewBag.Roles = db.Roles.OrderBy(r => r.Id).ToList();
-            ViewBag.Empresas = db.Empresas.OrderBy(e => e.Nombre).ToList();
-            return View();
+            return await VolverConErrorAsync("Ya existe un usuario con ese correo.");
+        }
+
+        var rol = await db.Roles.FirstOrDefaultAsync(r => r.Id == rolId && r.Activo);
+        if (rol is null)
+        {
+            return await VolverConErrorAsync("El rol seleccionado no existe o está inactivo.");
+        }
+
+        // Solo el rol de comerciante se asocia a una empresa.
+        if (rol.Codigo != "COMERCIANTE")
+        {
+            empresaId = null;
+        }
+        else if (empresaId.HasValue && !await db.Empresas.AnyAsync(e => e.Id == empresaId.Value))
+        {
+            return await VolverConErrorAsync("La empresa seleccionada no existe.");
         }
 
         var usuario = new Usuario
@@ -63,9 +95,22 @@ public class SuperAdminController(ContextoAplicacion db) : Controller
         db.Usuarios.Add(usuario);
         await db.SaveChangesAsync();
 
-        db.UsuarioRoles.Add(new UsuarioRol { UsuarioId = usuario.Id, RolId = rolId, EmpresaId = empresaId });
+        db.UsuarioRoles.Add(new UsuarioRol { UsuarioId = usuario.Id, RolId = rol.Id, EmpresaId = empresaId });
         await db.SaveChangesAsync();
 
         return RedirectToAction(nameof(Usuarios));
+    }
+
+    private async Task<IActionResult> VolverConErrorAsync(string mensaje)
+    {
+        ViewData["Error"] = mensaje;
+        await PrepararCombosAsync();
+        return View();
+    }
+
+    private async Task PrepararCombosAsync()
+    {
+        ViewBag.Roles = await db.Roles.Where(r => r.Activo).OrderBy(r => r.Id).ToListAsync();
+        ViewBag.Empresas = await db.Empresas.OrderBy(e => e.Nombre).ToListAsync();
     }
 }

@@ -503,10 +503,34 @@ namespace MultiTenantCSharpVargas.Migrations
                         new
                         {
                             Id = 1000,
-                            ContrasenaHash = "ED420D51779BD4722D41DB8203B70893CBB95582BF3E8C337492E8E2ABFDB483",
+                            ContrasenaHash = "pbkdf2-sha256$210000$GNnBg2xdU59yCbUaTEKYOw==$jOj6rSsxuMLBYRfhT5CqtpkgiKeFLZn5ydpCcjiJ748=",
                             Correo = "SuperAdmin@test.com",
                             FechaAlta = new DateTime(2026, 11, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Nombre = "Super Admin"
+                        },
+                        new
+                        {
+                            Id = 2001,
+                            ContrasenaHash = "pbkdf2-sha256$210000$VqcoBR6CgScnSYI5t7ZGEQ==$qoAJWmanNZegflVRvb5K5zVLTjRVn3LCD1bOUdrPVTk=",
+                            Correo = "Admin1@test.com",
+                            FechaAlta = new DateTime(2026, 11, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Administrador"
+                        },
+                        new
+                        {
+                            Id = 2002,
+                            ContrasenaHash = "pbkdf2-sha256$210000$L63pRxgtk0IjnQGcaoDF1A==$gxTl2eZdKlFtFEfvOoRo4yXsYJle3MjO2nSEMxlRbHs=",
+                            Correo = "Comerciante1@test.com",
+                            FechaAlta = new DateTime(2026, 11, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Comerciante"
+                        },
+                        new
+                        {
+                            Id = 2003,
+                            ContrasenaHash = "pbkdf2-sha256$210000$v9lrhnUsQzRx+7pkkWFmiQ==$PXLHlMYJoqEZwCn1puanbLhpSHMklR2WsepDgldaI5g=",
+                            Correo = "Usuario1@test.com",
+                            FechaAlta = new DateTime(2026, 11, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Usuario Cliente"
                         });
                 });
 
@@ -544,6 +568,24 @@ namespace MultiTenantCSharpVargas.Migrations
                             Id = 1000,
                             RolId = 1,
                             UsuarioId = 1000
+                        },
+                        new
+                        {
+                            Id = 2001,
+                            RolId = 2,
+                            UsuarioId = 2001
+                        },
+                        new
+                        {
+                            Id = 2002,
+                            RolId = 3,
+                            UsuarioId = 2002
+                        },
+                        new
+                        {
+                            Id = 2003,
+                            RolId = 4,
+                            UsuarioId = 2003
                         });
                 });
 

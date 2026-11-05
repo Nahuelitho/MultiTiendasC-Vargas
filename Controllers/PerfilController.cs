@@ -8,7 +8,7 @@ using MultiTenantCSharpVargas.Services;
 namespace MultiTenantCSharpVargas.Controllers;
 
 [Authorize]
-public class PerfilController(ContextoAplicacion db, IWebHostEnvironment entorno) : Controller
+public class PerfilController(ContextoAplicacion db, IWebHostEnvironment entorno, ServicioSesion sesion) : Controller
 {
     private const long TamanioMaximoFoto = 2 * 1024 * 1024;
     private static readonly string[] ExtensionesPermitidas = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
@@ -31,9 +31,10 @@ public class PerfilController(ContextoAplicacion db, IWebHostEnvironment entorno
             return NotFound();
         }
 
-        if (string.IsNullOrWhiteSpace(nombre))
+        nombre = nombre?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(nombre) || nombre.Length > 100)
         {
-            TempData["Error"] = "El nombre es obligatorio.";
+            TempData["Error"] = "El nombre es obligatorio y no puede superar los 100 caracteres.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -62,8 +63,11 @@ public class PerfilController(ContextoAplicacion db, IWebHostEnvironment entorno
             usuario.AvatarUrl = $"/imagenes/avatares/{archivo}";
         }
 
-        usuario.Nombre = nombre.Trim();
+        usuario.Nombre = nombre;
         await db.SaveChangesAsync();
+
+        // Refresca la cookie para que la cabecera muestre el nombre nuevo.
+        await sesion.IniciarSesionAsync(HttpContext, usuario);
 
         TempData["Mensaje"] = "Perfil actualizado correctamente.";
         return RedirectToAction(nameof(Index));
@@ -97,7 +101,7 @@ public class PerfilController(ContextoAplicacion db, IWebHostEnvironment entorno
             return NotFound();
         }
 
-        if (!PasswordHasher.Verify(actual, usuario.ContrasenaHash))
+        if (!PasswordHasher.Verify(actual ?? string.Empty, usuario.ContrasenaHash))
         {
             TempData["Error"] = "La contraseña actual no es correcta.";
         }

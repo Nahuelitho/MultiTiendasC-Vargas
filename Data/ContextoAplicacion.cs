@@ -132,20 +132,47 @@ public class ContextoAplicacion(DbContextOptions<ContextoAplicacion> opciones) :
             new Rol { Id = 4, Nombre = "Cliente", Codigo = "CLIENTE", Activo = true }
         );
 
-        // --- Seed del usuario super administrador ---
+        // --- Seed de usuarios de prueba, uno por rol ---
         modelo.Entity<Usuario>().HasData(
             new Usuario
             {
                 Id = 1000,
                 Nombre = "Super Admin",
                 Correo = "SuperAdmin@test.com",
-                ContrasenaHash = "ED420D51779BD4722D41DB8203B70893CBB95582BF3E8C337492E8E2ABFDB483",
+                ContrasenaHash = "pbkdf2-sha256$210000$GNnBg2xdU59yCbUaTEKYOw==$jOj6rSsxuMLBYRfhT5CqtpkgiKeFLZn5ydpCcjiJ748=",
                 FechaAlta = new DateTime(2026, 11, 2)
+            },
+            new Usuario
+            {
+                Id = 2001,
+                Nombre = "Administrador",
+                Correo = "Admin1@test.com",
+                ContrasenaHash = "pbkdf2-sha256$210000$VqcoBR6CgScnSYI5t7ZGEQ==$qoAJWmanNZegflVRvb5K5zVLTjRVn3LCD1bOUdrPVTk=",
+                FechaAlta = new DateTime(2026, 11, 3)
+            },
+            new Usuario
+            {
+                Id = 2002,
+                Nombre = "Comerciante",
+                Correo = "Comerciante1@test.com",
+                ContrasenaHash = "pbkdf2-sha256$210000$L63pRxgtk0IjnQGcaoDF1A==$gxTl2eZdKlFtFEfvOoRo4yXsYJle3MjO2nSEMxlRbHs=",
+                FechaAlta = new DateTime(2026, 11, 3)
+            },
+            new Usuario
+            {
+                Id = 2003,
+                Nombre = "Usuario Cliente",
+                Correo = "Usuario1@test.com",
+                ContrasenaHash = "pbkdf2-sha256$210000$v9lrhnUsQzRx+7pkkWFmiQ==$PXLHlMYJoqEZwCn1puanbLhpSHMklR2WsepDgldaI5g=",
+                FechaAlta = new DateTime(2026, 11, 3)
             }
         );
 
         modelo.Entity<UsuarioRol>().HasData(
-            new UsuarioRol { Id = 1000, UsuarioId = 1000, RolId = 1, EmpresaId = null }
+            new UsuarioRol { Id = 1000, UsuarioId = 1000, RolId = 1, EmpresaId = null },
+            new UsuarioRol { Id = 2001, UsuarioId = 2001, RolId = 2, EmpresaId = null },
+            new UsuarioRol { Id = 2002, UsuarioId = 2002, RolId = 3, EmpresaId = null },
+            new UsuarioRol { Id = 2003, UsuarioId = 2003, RolId = 4, EmpresaId = null }
         );
     }
 }

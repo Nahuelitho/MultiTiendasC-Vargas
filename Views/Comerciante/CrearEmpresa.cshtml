@@ -1,3 +1,5 @@
+@model MultiTenantCSharpVargas.Models.Empresa?
+
 @{
     ViewData["Title"] = "Crear mi empresa";
 }
@@ -9,34 +11,36 @@
 <div class="tarjeta-cuenta">
     <h2>Crear mi empresa</h2>
 
+    <div asp-validation-summary="All" class="alerta-error"></div>
+
     <form asp-action="CrearEmpresa" method="post">
         <div class="campo">
             <label>Nombre</label>
-            <input type="text" name="Nombre" required />
+            <input type="text" name="Nombre" value="@Model?.Nombre" maxlength="120" required />
         </div>
         <div class="campo">
             <label>Descripción</label>
-            <input type="text" name="Descripcion" />
+            <input type="text" name="Descripcion" value="@Model?.Descripcion" maxlength="500" />
         </div>
         <div class="campo">
             <label>Dirección</label>
-            <input type="text" name="Direccion" required />
+            <input type="text" name="Direccion" value="@Model?.Direccion" maxlength="150" required />
         </div>
         <div class="campo">
             <label>Localidad</label>
-            <input type="text" name="Localidad" required />
+            <input type="text" name="Localidad" value="@Model?.Localidad" maxlength="100" required />
         </div>
         <div class="campo">
             <label>Teléfono</label>
-            <input type="text" name="Telefono" />
+            <input type="text" name="Telefono" value="@Model?.Telefono" maxlength="100" />
         </div>
         <div class="campo">
             <label>Medios de pago</label>
-            <input type="text" name="MediosDePago" />
+            <input type="text" name="MediosDePago" value="@Model?.MediosDePago" maxlength="250" />
         </div>
         <div class="campo">
             <label>
-                <input type="checkbox" name="OfreceDelivery" value="true" />
+                <input type="checkbox" name="OfreceDelivery" value="true" checked="@(Model?.OfreceDelivery == true)" />
                 Ofrece delivery
             </label>
         </div>

@@ -34,3 +34,7 @@ appsettings.Local.json
 
 # Local project context
 /.tu-tienda-cerca.sdd.md
+
+# Archivos subidos por los usuarios
+wwwroot/imagenes/avatares/
+wwwroot/imagenes/productos/
