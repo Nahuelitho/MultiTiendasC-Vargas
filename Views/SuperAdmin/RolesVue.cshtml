@@ -14,13 +14,13 @@
     <h2>Roles del sistema</h2>
 
     <div class="acciones-panel">
-        <button class="boton-principal" @click="abrirCrear()">+ Crear rol</button>
+        <button class="boton-principal" @@click="abrirCrear()">+ Crear rol</button>
         <a asp-action="Roles">Vista MVC (respaldo)</a>
         <a asp-action="Index">Volver al panel</a>
     </div>
 
     <div class="buscador-roles">
-        <input type="search" v-model="filtro" placeholder="Buscar rol por nombre o código..." @input="buscar" />
+        <input type="search" v-model="filtro" placeholder="Buscar rol por nombre o código..." @@input="buscar" />
     </div>
 
     <p class="texto-tenue">
@@ -58,23 +58,23 @@
                 </td>
                 <td>
                     <div class="acciones-fila">
-                        <button v-if="editando === rol.id" class="boton-tabla boton-exito" @click="guardar(rol)">Guardar</button>
-                        <button v-if="editando === rol.id" class="boton-tabla boton-peligro" @click="cancelarEdicion(rol)">Cancelar</button>
-                        <button v-else @click="editar(rol)" class="boton-tabla">Editar</button>
+                        <button v-if="editando === rol.id" class="boton-tabla boton-exito" @@click="guardar(rol)">Guardar</button>
+                        <button v-if="editando === rol.id" class="boton-tabla boton-peligro" @@click="cancelarEdicion(rol)">Cancelar</button>
+                        <button v-else @@click="editar(rol)" class="boton-tabla">Editar</button>
 
                         <template v-if="rol.protegido">
                             <span class="texto-tenue boton-tabla" title="Protegido">—</span>
                         </template>
                         <template v-else>
                             <button v-if="!editando === rol.id" :disabled="cargando" class="boton-tabla"
-                                    @click="cambiarEstado(rol)"
+                                    @@click="cambiarEstado(rol)"
                                     title="{{ rol.activo ? 'Desactivar' : 'Activar' }}">
                                 {{ rol.activo ? 'Desactivar' : 'Activar' }}
                             </button>
                             <button v-if="!editando === rol.id && rol.usuarios === 0" :disabled="cargando"
-                                    class="boton-tabla boton-peligro" @click="eliminar(rol)">Eliminar</button>
+                                    class="boton-tabla boton-peligro" @@click="eliminar(rol)">Eliminar</button>
                             <button v-if="!editando === rol.id && rol.usuarios > 0" :disabled="cargando"
-                                    class="boton-tabla boton-peligro" @click="eliminar(rol)" title="Tiene usuarios: se desactivará">
+                                    class="boton-tabla boton-peligro" @@click="eliminar(rol)" title="Tiene usuarios: se desactivará">
                                 Desactivar
                             </button>
                         </template>
@@ -87,11 +87,11 @@
     <div v-if="roles.length === 0 && !cargando" class="texto-tenue">No se encontraron roles.</div>
 
     <nav class="paginacion" aria-label="Paginación de roles" v-if="totalPaginas > 1">
-        <button :disabled="pagina === 1" @click="cambiarPagina(pagina - 1)">← Anterior</button>
+        <button :disabled="pagina === 1" @@click="cambiarPagina(pagina - 1)">← Anterior</button>
         <button v-for="n in paginasVisibles" :key="n"
                 :class="{ activa: n === pagina }"
-                @click="cambiarPagina(n)">{{ n }}</button>
-        <button :disabled="pagina === totalPaginas" @click="cambiarPagina(pagina + 1)">Siguiente →</button>
+                @@click="cambiarPagina(n)">{{ n }}</button>
+        <button :disabled="pagina === totalPaginas" @@click="cambiarPagina(pagina + 1)">Siguiente →</button>
     </nav>
 
     <p class="texto-tenue nota-panel">

@@ -4,6 +4,7 @@ using MultiTenantCSharpVargas.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MultiTenantCSharpVargas.Data;
 
 namespace MultiTenantCSharpVargas.Controllers.api
 {
@@ -21,9 +22,16 @@ namespace MultiTenantCSharpVargas.Controllers.api
         [HttpGet]
         public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var query = _context.Roles.AsQueryable();
+            // Mapeamos las entidades 'Rol' de la BD directamente al DTO que espera recibir el paginador
+            var queryDto = _context.Roles
+                .Select(r => new RolDto
+                {
+                    Id = r.Id,
+                    Nombre = r.Nombre,
+                    Codigo = r.Codigo
+                });
 
-            var pagedResult = await query.GetPagedAsync<RolDto>(page, pageSize);
+            var pagedResult = await queryDto.GetPagedAsync(page, pageSize);
 
             return Ok(pagedResult);
         }

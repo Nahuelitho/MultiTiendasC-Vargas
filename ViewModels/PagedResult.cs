@@ -1,5 +1,4 @@
-namespace TuProyecto.ViewModels
-{
+namespace MultiTenantCSharpVargas.ViewModels;
     public class PagedResult<T>
     {
         public IReadOnlyList<T> Items { get; set; } = new List<T>();
@@ -8,4 +7,3 @@ namespace TuProyecto.ViewModels
         public int PageSize { get; set; }
         public int TotalPages => (int)Math.Ceiling(TotalItems / (double)PageSize);
     }
-}

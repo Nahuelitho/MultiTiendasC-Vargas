@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+
+
 namespace MultiTenantCSharpVargas.Services
 {
     public class PagedResult<T>

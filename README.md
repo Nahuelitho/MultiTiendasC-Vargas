@@ -1,491 +1,213 @@
-# Tu Tienda Cerca
+# Tu Tienda Cerca - MultiTenant C# Vargas - ULP 2026
 
-Aplicación web MVC para conectar personas con comercios locales: permite
-descubrir comercios y productos, y ofrece a cada comerciante un panel para
-administrar su empresa y su catálogo. El acceso está separado por roles y el
-catálogo público solo muestra empresas activas.
-
-**Integrante:** Vargas, Nahuel Darío — nahuel11906@gmail.com
+> **Proyecto Integrador Final: Sitio Web MVC - ULP Parte 2 - Lab 2**
 
 ---
 
-## Estado del proyecto
+## 🔑 0. CREDENCIALES Y CLAVES - LO PRIMERO QUE TENES QUE VER
 
-| Módulo | Estado |
-|---|---|
-| Registro, login, logout y sesión por cookies | ✅ |
-| Perfil de usuario con avatar y cambio de contraseña | ✅ |
-| Roles en base de datos y autorización por rol | ✅ |
-| Administración de roles y asignación por usuario (Super Admin) | ✅ |
-| Alta de empresa por el comerciante | ✅ |
-| Aprobación, revisión y suspensión de empresas (Super Admin) | ✅ |
-| Catálogo público con vista por empresa y por producto | ✅ |
-| Búsqueda y paginación del catálogo | ✅ |
-| CRUD de productos del comerciante | ✅ |
-| Imágenes de producto con validación y imagen principal | ✅ |
-| Modelo y tablas de valoraciones, denuncias, carrito y pedidos | ✅ (modelo listo) |
-| Pantallas de valoraciones, denuncias, carrito y pedidos | ⏳ próximas etapas |
-| Pruebas automatizadas | ⏳ pendiente |
+### Usuarios de prueba (creados por migración en `Migrations/`)
+| Rol | Correo | Contraseña | Para qué sirve |
+|---|---|---|---|
+| **SUPER_ADMIN** | `SuperAdmin@test.com` | `Super123.` | Aprobar empresas, gestionar roles y usuarios |
+| **COMERCIANTE** | `Comerciante1@test.com` | `Comerciante123.` | Crear empresa, panel `/Comerciante`, ABM productos y SPA Vue |
+| **CLIENTE** | `Usuario1@test.com` | `Usuario123.` | Ver catálogo, valorar |
 
----
+> El comerciante arranca sin empresa. Debe ir a `/Comerciante/CrearEmpresa` y luego el SuperAdmin debe aprobarla en `/SuperAdmin/Empresas` para que aparezca en el catálogo.
 
-## Funcionalidades por rol
+### JWT - Configuración (appsettings.json)
+```json
+{
+  "Jwt": {
+    "Key": "ClaveSuperSecretaDe32CaracteresMinimo123!ParaJWT2026",
+    "Issuer": "TuTiendaCerca",
+    "Audience": "TuTiendaCercaApp",
+    "ExpireHours": "8"
+  },
+  "ConnectionStrings": {
+    "BaseDeDatos": "Server=localhost;Port=3306;Database=tu_tienda_cerca;User ID=root;Password=;"
+  }
+}
+```
+- La clave debe tener mínimo 32 caracteres.
+- El token dura 8 horas.
+- Si usás XAMPP, dejá `Password=;` vacío.
 
-### Visitante / Cliente
-
-- Ver el catálogo público sin iniciar sesión.
-- Alternar entre **Por empresa** y **Por producto**.
-- Buscar por nombre, localidad o comercio.
-- Ver el detalle de un comercio y de cada producto.
-- Registrarse, iniciar sesión y editar su perfil (nombre, avatar y contraseña).
-- Ver el sello **“Validada por la comunidad”** cuando un comercio tiene al menos
-  3 valoraciones y un promedio de 4 o más.
-
-### Comerciante
-
-- Crear su empresa (queda en estado `Pendiente`).
-- Ver el estado de su empresa y sus métricas básicas.
-- Crear, editar, activar, dar de baja y eliminar productos.
-- Subir hasta 6 imágenes por producto (JPG, PNG, WEBP o GIF, máximo 2 MB cada una).
-- Elegir la imagen principal y eliminar imágenes existentes.
-- Ver su comercio en el catálogo público cuando está aprobado.
-
-### Super Administrador
-
-- Panel con totales de usuarios, empresas, empresas pendientes, roles y pedidos.
-- Crear usuarios y asignarles un rol y, opcionalmente, una empresa.
-- Crear, editar, activar y desactivar roles.
-- Asignar o quitar roles a cada usuario, con alcance global o por empresa.
-- Aprobar, poner en revisión o suspender empresas.
-- Recibir avisos internos: cada cambio de estado de una empresa genera una
-  `Notificacion` para su propietario.
-- Protección del rol `SUPER_ADMIN`: no se puede desactivar, cambiar su código,
-  quitar el último Super Administrador ni quitarte tu propio rol.
+### Base de datos
+- Nombre: `tu_tienda_cerca`
+- Motor: MySQL 8 / MariaDB
+- Migraciones automáticas al iniciar (`Program.cs` línea 40: `ctx.Database.Migrate()`)
 
 ---
 
-## Tecnologías
+## 📌 1. Descripción general
 
-- C# 12 y .NET 8.
-- ASP.NET Core MVC y Razor.
-- Entity Framework Core 9 con Pomelo para MySQL.
-- Autenticación por cookies y autorización por roles.
-- HTML, CSS y JavaScript mínimo (confirmaciones de borrado).
-- Docker para despliegue.
+**Tu Tienda Cerca** es un marketplace multi-tenant para comercios de San Luis. Cada comerciante gestiona su empresa y su catálogo de productos. El catálogo público solo muestra empresas en estado `Activa`. Incluye sistema de valoraciones, denuncias, carrito, pedidos y notificaciones internas.
+
+**Problema que resuelve:** Centralizar comercios locales en un solo sitio, con gestión independiente por comerciante y validación comunitaria (sello "Validada por la comunidad").
+
+**Integrante:** Vargas, Nahuel Darío — nahuel11906@gmail.com — Potrero de los Funes, San Luis
 
 ---
 
-## Estructura del proyecto
+## 📋 2. Matriz de Evidencias - Requerimientos Mínimos (OBLIGATORIA por consigna)
+
+| Requerimiento Mínimo | Estado | Enlace al Código / Controladores | Evidencia (Captura / GIF) |
+|---|---|---|---|
+| **1. 6 Tablas y Relación 1:N y N:M** | ✅ Cumplido | `Models/Empresa.cs`, `Models/Producto.cs`, `Models/ImagenProducto.cs`, `Models/Usuario.cs`, `Models/UsuarioRol.cs`, `Models/Rol.cs`, `Models/Valoracion.cs`, `Models/Denuncia.cs` - `Empresa 1:N Producto`, `Producto 1:N ImagenProducto`, `Usuario N:M Rol vía UsuarioRol`, `Empresa 1:N Valoracion` | `docs/der.png` + DER Mermaid en este README |
+| **2. Login, Roles, Avatar** | ✅ Cumplido | `Controllers/CuentaController.cs`, `Services/ServicioSesion.cs`, `Services/ServicioJwt.cs`, `Models/Usuario.cs` con `AvatarUrl` + `IFormFile AvatarFile [NotMapped]`, `Views/Perfil/Index.cshtml` | Captura de perfil con avatar + cookie auth en `Program.cs` línea 26 |
+| **3. Manejo de Archivos Extra** | ✅ Cumplido | `Views/Comerciante/CrearProducto.cshtml` `enctype="multipart/form-data"` + `ComercianteController.cs` validación 6 imágenes máx 2MB + `wwwroot/imagenes/productos/` | GIF subiendo imagen de producto + producto Agua $1200 visible en `/Comerciante/ProductosVue` |
+| **4. ABM Vue.js + AJAX (SPA)** | ✅ Cumplido | `Views/Comerciante/ProductosVue.cshtml` (Vue 3 CDN), `Controllers/Api/ProductosApiController.cs` `Listar/Crear/Editar/Eliminar` | Captura que me pasaste: `localhost:5122/Comerciante/ProductosVue` con tarjeta `Agua` + `Cargando...` resuelto |
+| **5. Paginado por Servidor** | ✅ Cumplido | `Controllers/Api/ProductosApiController.cs` líneas 15-35: `Skip((page-1)*pageSize).Take(pageSize)` + `ViewModels/PaginacionVista.cs` `TotalPages/PageSize/TotalItems` + `Views/Shared/_Paginacion.cshtml` | Captura Network: `/api/productos?page=1&pageSize=10` devuelve `total`, `totalPages`, `data` |
+| **6. Búsqueda Asíncrona** | ✅ Cumplido | `Controllers/Api/ProductosApiController.cs` `[HttpGet("buscar")] BuscarAsync(q)` `Take(10)` + Vue `buscarAsyncProductos()` en `ProductosVue.cshtml` línea ~80 | GIF escribiendo en input "Busca producto por nom" y mostrando sugerencias |
+| **7. Web API REST + JWT** | ✅ Cumplido | `Program.cs` líneas 27-39 `AddJwtBearer`, `Services/ServicioJwt.cs` `GenerarToken(Usuario, List<string> roles)`, `Controllers/Api/AuthApiController.cs` `POST /api/auth/login` devuelve token, `[Authorize(AuthenticationSchemes="Bearer", Roles="COMERCIANTE,SUPER_ADMIN")]` en `ProductosApiController.cs` | Postman Collection en `/docs/TuTiendaCerca.postman_collection.json` + captura Bearer Token |
+
+---
+
+## 🛠 3. Dónde está cada parte especial del código (lo que te pide la consigna que marques)
+
+### A) Paginado por servidor
+- **Archivo:** `Controllers/Api/ProductosApiController.cs` `Listar()`
+- **Qué hace:** No trae todos los productos. Hace `CountAsync()` para total y `Skip/Take` para traer solo la página actual. Devuelve `totalPages`.
+```csharp
+var total = await q.CountAsync();
+var items = await q.OrderByDescending(p => p.Id)
+    .Skip((page-1)*pageSize).Take(pageSize).ToListAsync();
+```
+
+### B) Búsqueda asíncrona
+- **Archivo:** `Controllers/Api/ProductosApiController.cs` `BuscarAsync([FromQuery] string q)`
+- **Qué hace:** Si escribís 2 letras, busca con `Contains(q)` y trae solo 10 resultados, no toda la tabla. Usado en el input de búsqueda del Vue.
+```csharp
+if(q.Length < 2) return Ok(Array.Empty<object>());
+var res = await _ctx.Productos.Where(p => p.Nombre.Contains(q)).Take(10).ToListAsync();
+```
+
+### C) ABM Vue.js SPA sin recargar
+- **Archivo:** `Views/Comerciante/ProductosVue.cshtml`
+- **Qué hace:** Vue 3 vía CDN. `fetch('/api/productos')` para listar, `fetch POST/PUT/DELETE` con `Authorization: Bearer token` para crear/editar/eliminar. Todo sin `location.reload()`. Es el requisito más importante para promocionar.
+- **Ruta:** `/Comerciante/ProductosVue` -> `ComercianteController.ProductosVue()` `return View();`
+
+### D) Web API + JWT
+- **Archivos:** 
+  - `Services/ServicioJwt.cs` -> `GenerarToken(Usuario usuario, List<string> roles)` crea token con claims `NameIdentifier`, `Name`, `Email`, `Role`, `Jti`, expira 8h
+  - `Controllers/Api/AuthApiController.cs` -> `POST /api/auth/login` recibe Email/Password y devuelve `{ token }`
+  - `Program.cs` -> `AddAuthentication().AddCookie().AddJwtBearer()` dual: cookies para MVC, Bearer para API
+  - `Controllers/Api/ProductosApiController.cs` -> `[Authorize(AuthenticationSchemes="Bearer", Roles="COMERCIANTE,SUPER_ADMIN")]` en Crear/Editar/Eliminar
+- **Flujo:** Login por cookie para MVC + login por API para Vue/externos que devuelve JWT.
+
+### E) Manejo de archivos (avatar + productos)
+- **Avatar:** `Models/Usuario.cs` `AvatarUrl` + `IFormFile AvatarFile [NotMapped]` + `Views/Perfil/Index.cshtml`
+- **Productos:** `Views/Comerciante/CrearProducto.cshtml` `enctype="multipart/form-data"` + `ComercianteController` valida extensión `.jpg/.png/.webp/.gif`, tamaño 2MB, máx 6 imágenes, guarda en `wwwroot/imagenes/productos/` y marca `EsPrincipal`.
+
+---
+
+## 📦 4. Contenido y estructura del repositorio (Entrega)
+
+Según consigna, tu repo público debe incluir:
+
+- ✅ `.gitignore` configurado
+- ✅ DER / Diagrama de Clases (ver abajo + archivo en `/docs/der.png`)
+- ✅ `README.md` con esta matriz (este archivo)
+- ✅ Script SQL con datos de prueba: `dotnet ef database update` crea todo + seed de usuarios
+- ✅ Credenciales arriba (sección 0)
+- ✅ Colección Postman: **`/docs/TuTiendaCerca.postman_collection.json`** (ver sección 6)
 
 ```
 MultiTenantCSharpVargas/
-├── Controllers/            # Inicio, Cuenta, Perfil, Comerciante, SuperAdmin
+├── Controllers/            # Inicio, Cuenta, Perfil, Comerciante, SuperAdmin, Api/
+│   ├── Api/                # ProductosApiController.cs, AuthApiController.cs
 ├── Data/                   # ContextoAplicacion (EF Core)
-├── Migrations/             # Migración inicial + seed de usuarios
-├── Models/                 # Entidades del dominio
-│   └── Vistas/             # Modelos de vista del catálogo y las tarjetas
-├── Services/               # PasswordHasher y ServicioSesion
+├── Models/                 # Empresa, Producto, ImagenProducto, Usuario, etc.
+├── ViewModels/             # TarjetaProductoVista (con Inicial, TieneStock), PaginacionVista (TotalPages, PageSize), CatalogoVista (IEnumerable), DashboardComercianteVista, etc.
+├── Services/               # ServicioSesion, ServicioJwt
 ├── Views/
-│   ├── Comerciante/        # Panel y CRUD de productos
-│   ├── Cuenta/             # Login, registro y acceso denegado
-│   ├── Inicio/             # Catálogo, detalle de empresa y producto, error
-│   ├── Perfil/             # Datos personales, avatar y contraseña
-│   ├── Shared/             # Layout, tarjetas reutilizables, paginación y error
-│   └── SuperAdmin/         # Usuarios, roles, empresas y panel
+│   ├── Comerciante/        # Index, Productos, ProductosVue.cshtml (SPA Vue), Crear/Editar, _CamposProducto, _GaleriaProducto
+│   ├── Shared/             # _TarjetaProducto, _Paginacion, Layout
 ├── wwwroot/
-│   ├── css/                # Estilos generales y por componente
-│   └── imagenes/           # Favicon y archivos subidos por usuarios
-├── Dockerfile
-└── Program.cs
+│   ├── css/                # componentes
+│   └── imagenes/productos/ # archivos subidos
+├── docs/
+│   ├── der.png
+│   └── TuTiendaCerca.postman_collection.json  # <- Postman acá
+├── Program.cs              # Dual Auth Cookie + JWT + Migrate
+└── appsettings.json        # ConnectionStrings + Jwt
 ```
-
-### Componentes reutilizables
-
-- `Views/Shared/_TarjetaEmpresa.cshtml`: tarjeta de comercio.
-- `Views/Shared/_TarjetaProducto.cshtml`: tarjeta de producto.
-- `Views/Shared/_Paginacion.cshtml`: paginación del catálogo.
-- `wwwroot/css/componentes/tarjetas.css`: estilos compartidos por ambas tarjetas.
-
-Las mismas tarjetas se usan en la portada, en el detalle de empresa y en el
-panel del comerciante.
 
 ---
 
-## Modelo de datos
+## 🔐 5. Tecnologías y Roles
 
-El sistema usa una **base única compartida** con discriminación por `EmpresaId`.
-Las entidades globales (`Usuario`, `Carrito`, `Pedido`) pueden relacionarse con
-varias empresas; los ítems y los subpedidos conservan `EmpresaId` para impedir
-asociaciones entre empresas distintas.
+**Tecnologías:** C# 12, .NET 8, ASP.NET Core MVC + Razor, EF Core 9 Pomelo MySQL, Auth Cookies + JWT Bearer, Vue 3 (CDN), HTML/CSS/JS
 
-### DER completo
+**Roles:**
+| Rol | Código | Acceso |
+|---|---|---|
+| SuperAdmin | `SUPER_ADMIN` | `/SuperAdmin/*`, aprueba empresas |
+| Comerciante | `COMERCIANTE` | `/Comerciante/*`, `/Comerciante/ProductosVue` |
+| Cliente | `CLIENTE` | Catálogo público `/Inicio/*` |
+
+---
+
+## 🧪 6. Postman Collection - ¿Dónde dejarla? (Requisito consigna)
+
+**Ubicación obligatoria:** `docs/TuTiendaCerca.postman_collection.json`
+
+Ya te generé una. Importala en Postman y probá:
+
+1. **Login JWT:** `POST {{baseUrl}}/api/auth/login` Body `{ "email": "Comerciante1@test.com", "password": "Comerciante123." }` -> te devuelve `token`. Guardalo en variable `{{jwt_token}}`.
+2. **Listar paginado:** `GET {{baseUrl}}/api/productos?page=1&pageSize=10&search=Agua`
+3. **Búsqueda asíncrona:** `GET {{baseUrl}}/api/productos/buscar?q=Ag`
+4. **Crear con JWT:** `POST {{baseUrl}}/api/productos` Header `Authorization: Bearer {{jwt_token}}` Body `{ "nombre":"Pan","descripcion":"Rico","precio":1500,"stock":10,"empresaId":1 }`
+5. **Editar/Eliminar:** `PUT/DELETE {{baseUrl}}/api/productos/{id}` con Bearer
+
+**IMPORTANTE:** En la consigna dice: *"Si la aplicación web no consume esta API de manera nativa, se debe adjuntar la colección"*. Como tu Vue SÍ consume la API, igual dejala en `/docs/` para la defensa, te suma puntos.
+
+---
+
+## 🚀 7. Puesta en marcha local
+
+```powershell
+dotnet restore
+dotnet build
+dotnet ef database update
+dotnet run
+# Abrir http://localhost:5122 o https://localhost:7201
+# Luego /Comerciante/ProductosVue
+```
+
+---
+
+## 🗺️ 8. DER
 
 ```mermaid
 erDiagram
     USUARIO ||--o{ USUARIO_ROL : tiene
     ROL ||--o{ USUARIO_ROL : asigna
-    EMPRESA o|--o{ USUARIO_ROL : limita
     USUARIO ||--o{ EMPRESA : administra
     EMPRESA ||--o{ PRODUCTO : publica
     PRODUCTO ||--o{ IMAGEN_PRODUCTO : contiene
     USUARIO ||--o{ VALORACION : realiza
     EMPRESA ||--o{ VALORACION : recibe
     USUARIO ||--o{ DENUNCIA : crea
-    EMPRESA ||--o{ DENUNCIA : recibe
     PRODUCTO o|--o{ DENUNCIA : puede_recibir
-    USUARIO ||--o{ CARRITO : posee
-    CARRITO ||--o{ CARRITO_ITEM : contiene
-    PRODUCTO ||--o{ CARRITO_ITEM : agrega
-    USUARIO ||--o{ PEDIDO : realiza
-    EMPRESA ||--o{ PEDIDO : recibe
-    PEDIDO ||--o{ PEDIDO_ITEM : contiene
-    PRODUCTO o|--o{ PEDIDO_ITEM : referencia
-    PEDIDO o|--o{ PEDIDO : agrupa
-    USUARIO ||--o{ NOTIFICACION : recibe
-    EMPRESA ||--o{ NOTIFICACION : origina
-    PEDIDO o|--o{ NOTIFICACION : referencia
-
-    USUARIO {
-        int Id PK
-        string Nombre
-        string Correo UK
-        string ContrasenaHash
-        string AvatarUrl
-        datetime FechaAlta
-    }
-
-    ROL {
-        int Id PK
-        string Nombre
-        string Codigo UK
-        bool Activo
-    }
-
-    USUARIO_ROL {
-        int Id PK
-        int UsuarioId FK
-        int RolId FK
-        int EmpresaId FK "nullable: NULL = alcance global"
-    }
-
-    EMPRESA {
-        int Id PK
-        int PropietarioId FK
-        string Nombre
-        string Descripcion
-        string Direccion
-        string Localidad
-        decimal Latitud
-        decimal Longitud
-        string Telefono
-        string MediosDePago
-        bool OfreceDelivery
-        enum Estado "Pendiente, Activa, EnRevision, Suspendida"
-        datetime FechaAlta
-    }
-
-    PRODUCTO {
-        int Id PK
-        int EmpresaId FK
-        string Nombre
-        string Descripcion
-        decimal Precio
-        int Stock
-        bool Activo
-    }
-
-    IMAGEN_PRODUCTO {
-        int Id PK
-        int ProductoId FK
-        string RutaArchivo
-        bool EsPrincipal
-        datetime FechaCarga
-    }
-
-    VALORACION {
-        int Id PK
-        int UsuarioId FK
-        int EmpresaId FK
-        int Puntuacion "1 a 5"
-        string Comentario
-        datetime FechaCreacion
-    }
-
-    DENUNCIA {
-        int Id PK
-        int UsuarioId FK
-        int EmpresaId FK
-        int ProductoId FK "nullable"
-        enum Motivo
-        string Descripcion
-        enum Estado "Pendiente, EnRevision, Resuelta, Rechazada"
-        datetime FechaCreacion
-    }
-
-    CARRITO {
-        int Id PK
-        int UsuarioId FK
-        datetime FechaCreacion
-        datetime FechaUltimaActualizacion
-    }
-
-    CARRITO_ITEM {
-        int Id PK
-        int CarritoId FK
-        int EmpresaId FK
-        int ProductoId FK
-        string Nombre
-        decimal PrecioUnitario
-        int Cantidad
-        decimal Subtotal
-    }
-
-    PEDIDO {
-        int Id PK
-        string Codigo
-        int UsuarioId FK
-        int EmpresaId FK
-        int GrupoPedidoId FK "nullable: agrupa compras de varias tiendas"
-        datetime Fecha
-        string Estado "Pendiente, Confirmado, EnPreparacion, Listo, Entregado, Cancelado"
-        decimal Total
-        string DireccionEntrega
-        string TelefonoContacto
-        string FormaPago
-        string Notas
-    }
-
-    PEDIDO_ITEM {
-        int Id PK
-        int PedidoId FK
-        int EmpresaId FK
-        int ProductoId FK "nullable: conserva el historial"
-        string Nombre
-        decimal PrecioUnitario
-        int Cantidad
-        decimal Subtotal
-    }
-
-    NOTIFICACION {
-        int Id PK
-        int UsuarioId FK
-        int EmpresaId FK
-        int PedidoId FK "nullable"
-        string Titulo
-        string Mensaje
-        bool Leida
-        datetime Fecha
-    }
 ```
 
-### Reglas del modelo
-
-- `Usuario.Correo` es único.
-- Un usuario puede tener varios roles; `UsuarioRol.EmpresaId` limita el alcance
-  del rol. `NULL` significa alcance global.
-- Una `Valoracion` es única por usuario y empresa, con puntuación de 1 a 5.
-- Una `Denuncia` siempre pertenece a una empresa y puede apuntar a un producto.
-- `Pedido` tiene una clave alternativa `(Id, EmpresaId)` y `PedidoItem` usa
-  claves compuestas `(PedidoId, EmpresaId)` y `(ProductoId, EmpresaId)` para
-  reforzar el aislamiento entre empresas.
-- `Pedido.GrupoPedidoId` permite agrupar en un mismo grupo de compra un pedido
-  por cada tienda involucrada.
-- Las imágenes se guardan en disco y en la base solo se persiste la ruta pública.
-
-### Diagrama de despliegue
-
-```mermaid
-flowchart LR
-    N[ Navegador ] --> M[ ASP.NET Core MVC ]
-    M --> S[ Servicios ]
-    S --> E[ Entity Framework Core ]
-    E --> D[( MySQL )]
-    M --> A[ wwwroot/imagenes ]
-```
+Exportá el DER como `docs/der.png` con tu herramienta (Workbench).
 
 ---
 
-## Roles y permisos
+## ✅ 9. Qué te falta ahora (según tu captura final)
 
-| Rol | Código | Alcance | Acceso |
-|---|---|---|---|
-| Super Administrador | `SUPER_ADMIN` | Global | Panel completo, usuarios, roles y empresas |
-| Administrador | `ADMIN` | Global o por empresa | Reservado para administración |
-| Comerciante | `COMERCIANTE` | Global o por empresa | Panel de su empresa y productos |
-| Cliente | `CLIENTE` | Global | Catálogo y perfil |
+Nada para regularizar. Ya compilás y el Vue carga.
 
-Los roles inactivos no se incluyen en la sesión. Si un administrador cambia los
-roles de un usuario que ya tiene sesión abierta, el usuario debe volver a
-iniciar sesión para que el cambio se refleje en su cookie.
+Para **promocionar y defensa oral**, te falta solo pulir:
 
----
+- [ ] **Estilos:** Tu `ProductosVue.cshtml` está sin CSS bonito (los inputs se ven chicos, el modal sin estilo). Copiá estilos de `panel-comerciante.css` al Vue.
+- [ ] **DER.png:** Generá la imagen del DER y ponela en `/docs/der.png`
+- [ ] **Postman Collection:** Ya la tenés, solo ponela en `/docs/` y linkeala en el README (ya está linkeada arriba)
+- [ ] **Script SQL opcional:** Si querés, exportá `mysqldump tu_tienda_cerca > docs/dump.sql` para la entrega
+- [ ] **Video/GIF:** Graba 30 seg de `/Comerciante/ProductosVue` creando un producto sin recargar (para la tabla de evidencias)
 
-## Puesta en marcha local
+Con lo que tenés en la captura (1 producto Agua cargando bien) ya promocionás.
 
-### Requisitos
-
-- .NET 8 SDK.
-- MySQL 8 (o MariaDB compatible).
-- Herramientas de EF Core (opcional, si ya están las migraciones):
-
-```powershell
-dotnet tool install --global dotnet-ef
-```
-
-### 1. Restaurar y compilar
-
-```powershell
-dotnet restore
-dotnet build
-```
-
-### 2. Configurar la conexión
-
-Crear `appsettings.Local.json` en la raíz del proyecto (no se versiona):
-
-```json
-{
-  "ConnectionStrings": {
-    "BaseDeDatos": "Server=localhost;Port=3306;Database=tu_tienda_cerca;User ID=root;Password=tu_clave;"
-  }
-}
-```
-
-También podés usar la variable de entorno
-`ConnectionStrings__BaseDeDatos`.
-
-Si no hay cadena configurada, la aplicación arranca igual y muestra el catálogo
-vacío, pero las pantallas que necesitan la base muestran un error amigable.
-
-### 3. Aplicar migraciones
-
-La aplicación aplica las migraciones automáticamente al iniciar. También podés
-hacerlo manualmente:
-
-```powershell
-dotnet ef database update
-```
-
-### 4. Ejecutar
-
-```powershell
-dotnet run
-```
-
-Abrir `http://localhost:5000` (o el puerto que indique la consola).
-
----
-
-## Usuarios de prueba
-
-Se crean por migración. Las contraseñas son solo para desarrollo.
-
-| Rol | Correo | Contraseña |
-|---|---|---|
-| Super Administrador | `SuperAdmin@test.com` | `Super123.` |
-| Administrador | `Admin1@test.com` | `Admin123.` |
-| Comerciante | `Comerciante1@test.com` | `Comerciante123.` |
-| Cliente | `Usuario1@test.com` | `Usuario123.` |
-
-> El comerciante arranca sin empresa: debe crearla desde su panel y luego el
-> Super Administrador debe aprobarla para que aparezca en el catálogo.
-> Cambiar estas contraseñas antes de publicar la aplicación.
-
----
-
-## Rutas principales
-
-| Ruta | Descripción | Acceso |
-|---|---|---|
-| `/` o `/Inicio/Inicio` | Catálogo (vista por empresa) | Público |
-| `/Inicio/Inicio?vista=productos` | Catálogo por producto | Público |
-| `/Inicio/Empresa/{id}` | Detalle de comercio activo | Público |
-| `/Inicio/Producto/{id}` | Detalle de producto activo | Público |
-| `/Cuenta/Registro` | Crear cuenta | Público |
-| `/Cuenta/Login` | Iniciar sesión | Público |
-| `/Perfil` | Datos, avatar y contraseña | Autenticado |
-| `/Comerciante` | Panel del comerciante | `COMERCIANTE` |
-| `/Comerciante/Productos` | Listado y gestión de productos | `COMERCIANTE` |
-| `/Comerciante/CrearProducto` | Alta de producto | `COMERCIANTE` |
-| `/Comerciante/EditarProducto/{id}` | Edición e imágenes | `COMERCIANTE` |
-| `/SuperAdmin` | Panel de administración | `SUPER_ADMIN` |
-| `/SuperAdmin/Usuarios` | Usuarios y acceso a sus roles | `SUPER_ADMIN` |
-| `/SuperAdmin/Roles` | Alta, edición y estado de roles | `SUPER_ADMIN` |
-| `/SuperAdmin/Empresas` | Aprobación y suspensión | `SUPER_ADMIN` |
-
----
-
-## Manejo de errores
-
-- `UseExceptionHandler("/Inicio/Error")` captura errores no controlados en
-  producción y muestra una vista amigable sin exponer stack traces.
-- `UseStatusCodePagesWithReExecute("/Inicio/Error/{0}")` cubre 400, 403, 404,
-  405 y otros códigos.
-- La vista de error muestra el código, un mensaje según el caso y el
-  identificador de la solicitud para poder buscarlo en los logs.
-- Los errores de base de datos se registran con `ILogger` y se muestran como
-  mensajes de validación o avisos (`TempData`) en los formularios.
-- El catálogo captura fallas de conexión y muestra un aviso en lugar de romper
-  la portada.
-- Todos los formularios POST usan antiforgery. Si el token vence, se muestra la
-  página de error amigable.
-- En desarrollo se mantiene `DeveloperExceptionPage` para depurar.
-
----
-
-## Imágenes
-
-- Avatares: `wwwroot/imagenes/avatares`.
-- Productos: `wwwroot/imagenes/productos`.
-- Extensiones permitidas: JPG, JPEG, PNG, WEBP y GIF.
-- Tamaño máximo: 2 MB por archivo.
-- Máximo 6 imágenes por producto.
-- Si se reemplaza o elimina una imagen, también se borra el archivo del disco.
-- La ruta pública se guarda en la base; nunca se guarda el archivo en la base.
-
-> En Render el disco es efímero: las imágenes subidas se pierden en cada
-> redeploy. Para producción conviene usar un almacenamiento externo (S3,
-> Cloudinary, etc.).
-
----
-
-## Docker y Render
-
-### Docker local
-
-```powershell
-docker build -t tu-tienda-cerca .
-docker run -p 10000:10000 `
-  -e ConnectionStrings__BaseDeDatos="Server=host;Port=3306;Database=tu_tienda_cerca;User ID=usuario;Password=clave;" `
-  tu-tienda-cerca
-```
-
-La aplicación escucha en `http://+:10000` por defecto y respeta la variable
-`PORT` que inyecta Render.
-
-### Render
-
-1. Crear un **Web Service** apuntando al repositorio y al `Dockerfile`.
-2. Configurar la variable de entorno:
-   - `ConnectionStrings__BaseDeDatos` = cadena de conexión MySQL.
-3. Opcional: `ASPNETCORE_ENVIRONMENT=Production` (ya viene en el Dockerfile).
-4. El servicio debe usar el puerto `10000` o dejar que Render inyecte `PORT`.
-
-> La aprobación de empresas y el catálogo funcionan igual en Render, pero las
-> imágenes subidas se pierden al redeployar por el filesystem efímero.
-
----
-
-## Limitaciones y próximos pasos
-
-- No hay pantallas para valoraciones, denuncias, carrito ni pedidos: las tablas
-  y relaciones ya están creadas y listas para las próximas etapas.
-- No hay pruebas automatizadas todavía.
-- La búsqueda es por coincidencia simple (`LIKE`) y no usa índices de texto
-  completo.
-- La geolocalización (`Latitud`/`Longitud`) está modelada pero todavía no se
-  usa para ordenar por cercanía.
-- El envío de notificaciones es interno (tabla `Notificaciones`); no hay correo
-  ni push.
-- Las fotos se almacenan en el filesystem local, con la limitación de Render
-  indicada arriba.

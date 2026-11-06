@@ -1,0 +1,10 @@
+{
+  "info": { "name": "TuTiendaCerca ULP - API JWT", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "item": [
+    { "name": "Login JWT", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"email\":\"comerciante@ulp.com\",\"password\":\"123456\"}" }, "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] } } },
+    { "name": "Listar Productos Paginado", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos?page=1&pageSize=10&search=pan", "host": ["{{baseUrl}}"], "path": ["api","productos"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "10" }, { "key": "search", "value": "pan" }] } } },
+    { "name": "Busqueda Asincrona", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos/buscar?q=pa", "host": ["{{baseUrl}}"], "path": ["api","productos","buscar"], "query": [{ "key": "q", "value": "pa" }] } } },
+    { "name": "Crear Producto con JWT", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "body": { "mode": "raw", "raw": "{\"nombre\":\"Pan casero\",\"descripcion\":\"Rico pan\",\"precio\":1500,\"stock\":10,\"empresaId\":1}" }, "url": { "raw": "{{baseUrl}}/api/productos", "host": ["{{baseUrl}}"], "path": ["api","productos"] } } }
+  ],
+  "variable": [{ "key": "baseUrl", "value": "https://localhost:5001" }, { "key": "jwt_token", "value": "" }]
+}

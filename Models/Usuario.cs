@@ -32,4 +32,15 @@ public class Usuario
     public ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
     public ICollection<Carrito> Carritos { get; set; } = new List<Carrito>();
     public ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
+
+    // --- ALIAS COMPATIBLES PARA QUE NO SE ROMPA TU SERVICIO JWT ---
+    [NotMapped]
+    public string Email 
+    { 
+        get => Correo; 
+        set => Correo = value; 
+    }
+
+    [NotMapped]
+    public List<string> Roles { get; set; } = new();
 }

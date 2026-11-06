@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MultiTenantCSharpVargas.Data;
 using MultiTenantCSharpVargas.Models;
-using MultiTenantCSharpVargas.Models.Vistas;
+using MultiTenantCSharpVargas.ViewModels;
 
 namespace MultiTenantCSharpVargas.Controllers;
 

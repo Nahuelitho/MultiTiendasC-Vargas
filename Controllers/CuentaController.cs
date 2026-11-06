@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MultiTenantCSharpVargas.Data;
-using MultiTenantCSharpVargas.Models;
 using MultiTenantCSharpVargas.Services;
+using MultiTenantCSharpVargas.Models;
 
 namespace MultiTenantCSharpVargas.Controllers;
 

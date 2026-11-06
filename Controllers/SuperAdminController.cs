@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MultiTenantCSharpVargas.Data;
 using MultiTenantCSharpVargas.Models;
-using MultiTenantCSharpVargas.Models.Vistas;
+using MultiTenantCSharpVargas.ViewModels;
 using MultiTenantCSharpVargas.Services;
 
 namespace MultiTenantCSharpVargas.Controllers;
+
 
 [Authorize(Roles = "SUPER_ADMIN")]
 public class SuperAdminController(ContextoAplicacion db, ILogger<SuperAdminController> registro) : Controller
@@ -605,7 +606,7 @@ public class SuperAdminController(ContextoAplicacion db, ILogger<SuperAdminContr
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ApiCrearRol([FromBody] RolEntradaVista? entrada)
+    public async Task<IActionResult> ApiCrearRol([FromBody] RolEntradaApiDto? entrada)
     {
         var nombre = entrada?.Nombre?.Trim() ?? string.Empty;
         var codigo = NormalizarCodigo(entrada?.Codigo);
@@ -649,9 +650,14 @@ public class SuperAdminController(ContextoAplicacion db, ILogger<SuperAdminContr
         });
     }
 
+    private string NormalizarCodigo(object codigo)
+    {
+        throw new NotImplementedException();
+    }
+
     [HttpPut]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ApiActualizarRol(int id, [FromBody] RolEntradaVista? entrada)
+    public async Task<IActionResult> ApiActualizarRol(int id, [FromBody] RolEntradaApiDto? entrada)
     {
         var rol = await db.Roles.FirstOrDefaultAsync(r => r.Id == id);
         if (rol is null)
@@ -806,4 +812,21 @@ public class SuperAdminController(ContextoAplicacion db, ILogger<SuperAdminContr
 
     private static string NormalizarCodigo(string? codigo) =>
         (codigo ?? string.Empty).Trim().ToUpperInvariant().Replace(' ', '_');
+}
+
+public class RolEntradaApiDto
+{
+    public string? Nombre { get; set; }
+    public string? Codigo { get; set; }
+    public bool? Activo { get; set; }
+}
+
+internal class RolApiVista
+{
+    public int Id { get; set; }
+    public string Nombre { get; set; }
+    public string Codigo { get; set; }
+    public bool Activo { get; set; }
+    public int Usuarios { get; set; }
+    public bool Protegido { get; internal set; }
 }

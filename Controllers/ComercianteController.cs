@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MultiTenantCSharpVargas.Data;
 using MultiTenantCSharpVargas.Models;
-using MultiTenantCSharpVargas.Models.Vistas;
+using MultiTenantCSharpVargas.ViewModels;
 
 namespace MultiTenantCSharpVargas.Controllers;
 
@@ -29,6 +29,11 @@ public class ComercianteController(
             .ThenInclude(p => p.Imagenes)
             .FirstOrDefaultAsync(e => e.PropietarioId == UsuarioId);
         return View(empresa);
+    }
+
+    public IActionResult ProductosVue()
+    {
+        return View();
     }
 
     public async Task<IActionResult> CrearEmpresa()
