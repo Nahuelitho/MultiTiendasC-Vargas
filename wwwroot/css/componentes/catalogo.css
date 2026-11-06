@@ -238,3 +238,48 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Paginacion - Tu Tienda Cerca -  */
+.paginacion-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: 24px;
+    justify-content: center;
+}
+.pag-btn {
+    background: #fff;
+    border: 1px solid #E97C21;
+    color: #E97C21;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all .2s;
+    cursor: pointer;
+}
+.pag-btn:hover {
+    background: #FFF4E8;
+    color: #C86A1C;
+}
+.pag-btn.active {
+    background: #E97C21;
+    color: #fff;
+    border-color: #E97C21;
+}
+.pag-btn.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+.pag-dots {
+    color: #999;
+    padding: 0 4px;
+}
+.paginacion-info {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    margin-top: 12px;
+}

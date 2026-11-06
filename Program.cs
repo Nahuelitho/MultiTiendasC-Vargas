@@ -19,17 +19,71 @@ builder.Services.AddDbContext<ContextoAplicacion>(opt =>
 builder.Services.AddScoped<ServicioSesion>();
 builder.Services.AddScoped<ServicioJwt>();
 
-// AUTH DUAL: Cookies para MVC + JWT para API
+// AUTH DUAL: Cookies para MVC + JWT para API.
+// Un esquema "policy" elige el handler según el request:
+// - Authorization: Bearer ... -> JwtBearer
+// - caso contrario             -> Cookie (navegador / SPA mismo origen)
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "ClaveSuperSecretaDe32CaracteresMinimo123!";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "TuTiendaCerca";
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, opt => {
+const string esquemaCookiesOJwt = "CookiesOrJwt";
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = esquemaCookiesOJwt;
+        options.DefaultAuthenticateScheme = esquemaCookiesOJwt;
+        options.DefaultChallengeScheme = esquemaCookiesOJwt;
+        options.DefaultForbidScheme = esquemaCookiesOJwt;
+    })
+    .AddPolicyScheme(esquemaCookiesOJwt, "Cookies o JWT", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+        {
+            var autorizacion = context.Request.Headers.Authorization.FirstOrDefault();
+            if (!string.IsNullOrEmpty(autorizacion) &&
+                autorizacion.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                return JwtBearerDefaults.AuthenticationScheme;
+            }
+
+            return CookieAuthenticationDefaults.AuthenticationScheme;
+        };
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, opt =>
+    {
         opt.LoginPath = "/Cuenta/Login";
         opt.AccessDeniedPath = "/Cuenta/AccesoDenegado";
+
+        // Para las llamadas AJAX de la SPA devolvemos 401/403 en JSON,
+        // nunca un redirect a HTML (eso producía "Unexpected token '<'").
+        opt.Events.OnRedirectToLogin = contexto =>
+        {
+            if (contexto.Request.Path.StartsWithSegments("/api"))
+            {
+                contexto.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return contexto.Response.WriteAsJsonAsync(new { error = "No autenticado." });
+            }
+
+            contexto.Response.Redirect(contexto.RedirectUri);
+            return Task.CompletedTask;
+        };
+
+        opt.Events.OnRedirectToAccessDenied = contexto =>
+        {
+            if (contexto.Request.Path.StartsWithSegments("/api"))
+            {
+                contexto.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return contexto.Response.WriteAsJsonAsync(new { error = "No tenés permisos para esta acción." });
+            }
+
+            contexto.Response.Redirect(contexto.RedirectUri);
+            return Task.CompletedTask;
+        };
     })
-    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt => {
-        opt.TokenValidationParameters = new TokenValidationParameters {
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
+    {
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -62,7 +116,9 @@ if (!app.Environment.IsDevelopment()){
 }else{
     app.UseDeveloperExceptionPage();
 }
-app.UseStatusCodePagesWithReExecute("/Inicio/Error/{0}");
+app.UseWhen(
+    contexto => !contexto.Request.Path.StartsWithSegments("/api"),
+    rama => rama.UseStatusCodePagesWithReExecute("/Inicio/Error/{0}"));
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();

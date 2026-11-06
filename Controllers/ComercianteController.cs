@@ -25,14 +25,25 @@ public class ComercianteController(
     {
         var empresa = await db.Empresas
             .AsNoTracking()
-            .Include(e => e.Productos)
-            .ThenInclude(p => p.Imagenes)
             .FirstOrDefaultAsync(e => e.PropietarioId == UsuarioId);
-        return View(empresa);
+
+        if (empresa is null)
+        {
+            return RedirectToAction(nameof(CrearEmpresa));
+        }
+
+        return RedirectToAction(nameof(ProductosVue));
     }
 
-    public IActionResult ProductosVue()
+    public async Task<IActionResult> ProductosVue()
     {
+        var empresa = await db.Empresas
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.PropietarioId == UsuarioId);
+
+        ViewBag.EmpresaId = empresa?.Id ?? 0;
+        ViewBag.EmpresaNombre = empresa?.Nombre;
+
         return View();
     }
 

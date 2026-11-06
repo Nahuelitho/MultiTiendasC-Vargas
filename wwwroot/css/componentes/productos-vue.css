@@ -1,0 +1,293 @@
+/* ============================================================
+   Productos SPA (Vue) - estilos de la página
+   El modal vive en productos-vue-modal.css
+   ============================================================ */
+
+.vue-productos .acciones-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 1.5rem;
+}
+
+.vue-productos .input-busqueda {
+    min-width: 220px;
+    padding: .6rem .9rem;
+    border: 1px solid var(--borde, #d9dee5);
+    border-radius: 999px;
+    font-size: .9rem;
+    background: var(--blanco, #fff);
+    color: var(--azul-texto, #22303f);
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.vue-productos .input-busqueda:focus {
+    border-color: var(--naranja-principal, #e97c21);
+    box-shadow: 0 0 0 3px rgba(233, 124, 33, .15);
+}
+
+/* ---------------- Grilla de productos ---------------- */
+
+.vue-productos .producto-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+.vue-productos .producto-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--blanco, #fff);
+    border: 1px solid var(--borde, #d9dee5);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .04);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.vue-productos .producto-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .09);
+}
+
+.vue-productos .producto-card-imagen {
+    position: relative;
+    height: 180px;
+    background: var(--gris-fondo, #f5f7fa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.vue-productos .producto-card-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.vue-productos .producto-imagen-vacia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--celeste-claro, #e8f1fb);
+    color: var(--azul-texto, #22303f);
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.vue-productos .producto-body {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    padding: .9rem 1rem;
+    flex: 1;
+}
+
+.vue-productos .producto-empresa {
+    font-size: .68rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--naranja-principal, #e97c21);
+}
+
+.vue-productos .producto-nombre {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--azul-texto, #22303f);
+}
+
+.vue-productos .producto-descripcion {
+    margin: 0;
+    font-size: .82rem;
+    color: var(--gris-texto, #6b7785);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.vue-productos .producto-pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-top: auto;
+    padding-top: .4rem;
+}
+
+.vue-productos .producto-precio {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--azul-texto, #22303f);
+}
+
+.vue-productos .producto-stock {
+    font-size: .78rem;
+    color: var(--gris-texto, #6b7785);
+}
+
+.vue-productos .producto-stock.sin-stock {
+    color: #c0392b;
+    font-weight: 700;
+}
+
+.vue-productos .producto-acciones {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .65rem 1rem;
+    border-top: 1px solid var(--borde, #d9dee5);
+    background: var(--gris-fondo, #f5f7fa);
+}
+
+.vue-productos .enlace-accion {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--naranja-oscuro, #c86a1c);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.vue-productos .enlace-accion:hover {
+    text-decoration: underline;
+}
+
+.vue-productos .boton-tabla {
+    border: 1px solid var(--borde, #d9dee5);
+    background: var(--blanco, #fff);
+    border-radius: 999px;
+    padding: .3rem .75rem;
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--azul-texto, #22303f);
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.vue-productos .boton-tabla:hover {
+    border-color: var(--naranja-principal, #e97c21);
+    color: var(--naranja-principal, #e97c21);
+}
+
+.vue-productos .boton-tabla.boton-peligro:hover {
+    border-color: #c0392b;
+    color: #c0392b;
+}
+
+/* ---------------- Paginado ---------------- */
+
+.vue-productos .paginacion-vue {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.vue-productos .paginacion-vue button {
+    border: 1px solid var(--borde, #d9dee5);
+    background: var(--blanco, #fff);
+    border-radius: 999px;
+    padding: .45rem .95rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--azul-texto, #22303f);
+    cursor: pointer;
+}
+
+.vue-productos .paginacion-vue button:hover:not(:disabled) {
+    border-color: var(--naranja-principal, #e97c21);
+    color: var(--naranja-principal, #e97c21);
+}
+
+.vue-productos .paginacion-vue button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.vue-productos .paginacion-vue span {
+    font-size: .85rem;
+    color: var(--gris-texto, #6b7785);
+}
+
+/* ---------------- Búsqueda asíncrona ---------------- */
+
+.vue-productos .bloque-busqueda-async {
+    margin-top: 2rem;
+    padding: 1rem 1.1rem;
+    background: #fff8e7;
+    border: 1px solid #ffe0b0;
+    border-radius: 12px;
+}
+
+.vue-productos .bloque-busqueda-async h3 {
+    margin: 0 0 .6rem 0;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--azul-texto, #22303f);
+}
+
+.vue-productos .bloque-busqueda-async input {
+    width: 100%;
+    padding: .6rem .85rem;
+    border: 1px solid var(--naranja-principal, #e97c21);
+    border-radius: 8px;
+    font-size: .88rem;
+    background: var(--blanco, #fff);
+}
+
+.vue-productos .bloque-busqueda-async ul {
+    list-style: none;
+    margin: .75rem 0 0 0;
+    padding: 0;
+}
+
+.vue-productos .bloque-busqueda-async li {
+    padding: .45rem .5rem;
+    border-bottom: 1px solid #ffe8c4;
+    font-size: .85rem;
+    color: var(--azul-texto, #22303f);
+}
+
+.vue-productos .bloque-busqueda-async li:last-child {
+    border-bottom: 0;
+}
+
+/* ---------------- Mensajes ---------------- */
+
+.vue-productos .mensaje-error {
+    margin: .75rem 0;
+    padding: .65rem .8rem;
+    background: #fdecea;
+    border: 1px solid #f5b7b1;
+    border-radius: 8px;
+    color: #922b21;
+    font-size: .85rem;
+}
+
+@media (max-width: 640px) {
+    .vue-productos .acciones-panel {
+        width: 100%;
+    }
+
+    .vue-productos .input-busqueda {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .vue-productos .producto-grid {
+        grid-template-columns: 1fr;
+    }
+}

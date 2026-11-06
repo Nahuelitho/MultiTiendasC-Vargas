@@ -1,0 +1,196 @@
+/* ============================================================
+   Modal de alta/edición de producto (SPA Vue)
+   Archivo separado del resto de la página: productos-vue-modal.css
+   ============================================================ */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(16, 24, 32, .55);
+    backdrop-filter: blur(2px);
+    animation: modal-fondo .15s ease-out;
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--blanco, #fff);
+    border: 1px solid var(--borde, #d9dee5);
+    border-radius: 16px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
+    padding: 1.4rem 1.5rem 1.5rem;
+    animation: modal-entrada .18s ease-out;
+}
+
+.modal-cabecera {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modal-cabecera h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--azul-texto, #22303f);
+}
+
+.modal-cerrar {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--gris-fondo, #f5f7fa);
+    color: var(--gris-texto, #6b7785);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease;
+}
+
+.modal-cerrar:hover {
+    background: #fdecea;
+    color: #c0392b;
+}
+
+/* ---------------- Campos del formulario ---------------- */
+
+.modal-box .campo {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    margin-bottom: .85rem;
+}
+
+.modal-box .campo label {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--gris-texto, #6b7785);
+}
+
+.modal-box .campo input,
+.modal-box .campo textarea,
+.modal-box .campo select {
+    width: 100%;
+    padding: .6rem .75rem;
+    border: 1px solid var(--borde, #d9dee5);
+    border-radius: 9px;
+    font-size: .9rem;
+    font-family: inherit;
+    color: var(--azul-texto, #22303f);
+    background: var(--blanco, #fff);
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.modal-box .campo input:focus,
+.modal-box .campo textarea:focus,
+.modal-box .campo select:focus {
+    border-color: var(--naranja-principal, #e97c21);
+    box-shadow: 0 0 0 3px rgba(233, 124, 33, .15);
+}
+
+.modal-box .campo input:disabled {
+    background: var(--gris-fondo, #f5f7fa);
+    color: var(--gris-texto, #6b7785);
+    cursor: not-allowed;
+}
+
+.modal-box .campo textarea {
+    min-height: 78px;
+    resize: vertical;
+}
+
+.modal-box .campo input[type="file"] {
+    padding: .45rem .5rem;
+    background: var(--gris-fondo, #f5f7fa);
+    cursor: pointer;
+}
+
+.modal-box .campo-ayuda {
+    font-size: .72rem;
+    color: var(--gris-texto, #6b7785);
+}
+
+.modal-box .archivo-seleccionado {
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--naranja-oscuro, #c86a1c);
+    word-break: break-all;
+}
+
+.modal-box .campos-dobles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .85rem;
+}
+
+/* ---------------- Acciones ---------------- */
+
+.modal-box .acciones-formulario {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--borde, #d9dee5);
+}
+
+.modal-box .acciones-formulario .boton-principal {
+    margin: 0;
+}
+
+.modal-box .acciones-formulario .boton-principal:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.modal-box .mensaje-error {
+    margin: .75rem 0 0 0;
+    padding: .65rem .8rem;
+    background: #fdecea;
+    border: 1px solid #f5b7b1;
+    border-radius: 8px;
+    color: #922b21;
+    font-size: .85rem;
+}
+
+@keyframes modal-fondo {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modal-entrada {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 520px) {
+    .modal-box {
+        padding: 1.1rem 1rem;
+    }
+
+    .modal-box .campos-dobles {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-box .acciones-formulario {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .modal-box .acciones-formulario button {
+        width: 100%;
+    }
+}

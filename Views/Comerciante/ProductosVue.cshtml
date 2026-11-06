@@ -1,15 +1,17 @@
-@using MultiTenantCSharpVargas.ViewModels
 @{
     ViewData["Title"] = "Gestión Productos Vue";
 }
+
 @section Estilos {
     <link rel="stylesheet" href="~/css/componentes/panel-comerciante.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/productos-vue.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/productos-vue-modal.css" asp-append-version="true" />
 }
 
-<div id="app-vue-productos" class="panel-comerciante panel-comerciante-ancho">
+<div id="app-vue-productos" class="panel-comerciante panel-comerciante-ancho vue-productos">
     <div class="panel-cabecera">
         <div>
-            <span class="etiqueta-seccion">Panel comerciante • Vue.js + API JWT</span>
+            <span class="etiqueta-seccion">Panel comerciante • Vue.js + API</span>
             <h1>Productos SPA</h1>
             <p class="texto-tenue">ABM completo vía AJAX sin recargar - Requisito consigna</p>
         </div>
@@ -26,131 +28,378 @@
     </div>
 
     <div v-if="loading" class="tarjeta-vacia"><p>Cargando...</p></div>
-    <div v-else class="grilla-tarjetas">
-        <div v-for="p in productos" :key="p.id" class="tarjeta-gestion">
-            <article class="tarjeta-catalogo">
-                <div class="tarjeta-imagen-contenedor">
-                    <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" />
-                    <span v-else class="tarjeta-imagen-vacia">{{ p.nombre[0] }}</span>
+    <div v-else-if="errorLista" class="tarjeta-vacia"><p class="mensaje-error">{{ errorLista }}</p></div>
+    <div v-else-if="!productos.length" class="tarjeta-vacia">
+        <p>Todavía no tenés productos cargados.</p>
+        <button class="boton-principal" @@click="abrirModalCrear">Crear el primero</button>
+    </div>
+    <div v-else class="producto-grid">
+        <article v-for="p in productos" :key="p.id" class="producto-card">
+            <div class="producto-card-imagen">
+                <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" />
+                <span v-else class="producto-imagen-vacia">{{ p.nombre ? p.nombre[0] : '?' }}</span>
+            </div>
+            <div class="producto-body">
+                <span class="producto-empresa">{{ p.empresa }}</span>
+                <h3 class="producto-nombre">{{ p.nombre }}</h3>
+                <p class="producto-descripcion" v-if="p.descripcion">{{ p.descripcion }}</p>
+                <div class="producto-pie">
+                    <span class="producto-precio">$ {{ p.precio }}</span>
+                    <span class="producto-stock" :class="{ 'sin-stock': !p.tieneStock }">
+                        {{ p.tieneStock ? 'Stock: ' + p.stock : 'Sin stock' }}
+                    </span>
                 </div>
-                <div class="tarjeta-cuerpo">
-                    <span class="tarjeta-etiqueta">{{ p.empresa }}</span>
-                    <h3>{{ p.nombre }}</h3>
-                    <div class="tarjeta-pie">
-                        <span class="tarjeta-precio">$ {{ p.precio }}</span>
-                        <span :class="p.tieneStock ? '' : 'sin-stock'">{{ p.tieneStock ? 'Stock: '+p.stock : 'Sin stock' }}</span>
-                    </div>
-                </div>
-            </article>
-            <div class="acciones-tarjeta">
+            </div>
+            <div class="producto-acciones">
                 <button class="enlace-accion" @@click="abrirModalEditar(p)">Editar</button>
                 <button class="boton-tabla boton-peligro" @@click="eliminar(p.id)">Eliminar</button>
             </div>
-        </div>
+        </article>
     </div>
 
     <!-- Paginado servidor -->
     <nav class="paginacion-vue" v-if="totalPages > 1">
-        <button :disabled="page==1" @@click="cambiarPagina(page-1)">« Anterior</button>
+        <button :disabled="page === 1" @@click="cambiarPagina(page - 1)">« Anterior</button>
         <span>Página {{ page }} de {{ totalPages }}</span>
-        <button :disabled="page==totalPages" @@click="cambiarPagina(page+1)">Siguiente »</button>
+        <button :disabled="page === totalPages" @@click="cambiarPagina(page + 1)">Siguiente »</button>
     </nav>
 
     <!-- Modal Crear/Editar -->
-    <div v-if="showModal" class="modal-overlay" @@click.self="showModal=false">
-        <div class="modal-contenido tarjeta-cuenta">
-            <h2>{{ editando ? 'Editar' : 'Nuevo' }} Producto</h2>
-            <div class="campo"><label>Nombre</label><input v-model="form.nombre" /></div>
-            <div class="campo"><label>Descripción</label><textarea v-model="form.descripcion"></textarea></div>
-            <div class="campos-dobles">
-                <div class="campo"><label>Precio</label><input type="number" v-model.number="form.precio" step="0.01" /></div>
-                <div class="campo"><label>Stock</label><input type="number" v-model.number="form.stock" /></div>
+    <div v-if="showModal" class="modal-overlay" @@click.self="cerrarModal">
+        <div class="modal-box" role="dialog" aria-modal="true">
+            <div class="modal-cabecera">
+                <h2>{{ editando ? 'Editar' : 'Nuevo' }} Producto</h2>
+                <button type="button" class="modal-cerrar" @@click="cerrarModal" aria-label="Cerrar">×</button>
             </div>
-            <div class="campo">
-                <label>Empresa (búsqueda asíncrona)</label>
-                <input v-model="empresaQuery" @@input="buscarEmpresas" placeholder="Escribe al menos 2 letras..." />
-                <ul v-if="empresasSugeridas.length" class="sugerencias">
-                    <li v-for="e in empresasSugeridas" @@click="seleccionarEmpresa(e)">{{ e.nombre }} - {{ e.localidad }}</li>
-                </ul>
-                <small v-if="form.empresaId">Seleccionada ID: {{ form.empresaId }}</small>
-            </div>
-            <div class="acciones-formulario">
-                <button class="boton-principal" @@click="guardar">{{ editando ? 'Guardar' : 'Crear' }}</button>
-                <button class="boton-secundario-enlace" @@click="showModal=false">Cancelar</button>
-            </div>
+
+            <form v-on:submit.prevent="guardar">
+                <div class="campo">
+                    <label>Nombre</label>
+                    <input v-model="form.nombre" maxlength="150" placeholder="Ej: Pan casero" />
+                </div>
+
+                <div class="campo">
+                    <label>Descripción</label>
+                    <textarea v-model="form.descripcion" maxlength="500" placeholder="Descripción del producto"></textarea>
+                </div>
+
+                <div class="campos-dobles">
+                    <div class="campo">
+                        <label>Precio</label>
+                        <input type="number" v-model.number="form.precio" step="0.01" min="0" />
+                    </div>
+                    <div class="campo">
+                        <label>Stock</label>
+                        <input type="number" v-model.number="form.stock" min="0" />
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label>Empresa</label>
+                    <input disabled value="@(ViewBag.EmpresaNombre ?? "Sin empresa asignada") (ID: @ViewBag.EmpresaId)" />
+                    <small class="campo-ayuda">Tu empresa se asigna automática según tu usuario.</small>
+                </div>
+
+                <div class="campo">
+                    <label>Imagen (opcional)</label>
+                    <input id="input-imagen-producto" type="file" @@change="onFileChange"
+                           accept=".jpg,.jpeg,.png,.webp,.gif" />
+                    <small class="campo-ayuda">JPG, PNG, WEBP o GIF. Máximo 2 MB.</small>
+                    <span v-if="form.archivo" class="archivo-seleccionado">{{ form.archivo.name }}</span>
+                </div>
+
+                <p v-if="errorModal" class="mensaje-error">{{ errorModal }}</p>
+
+                <div class="acciones-formulario">
+                    <button type="submit" class="boton-principal" :disabled="guardando">
+                        {{ guardando ? 'Guardando...' : (editando ? 'Guardar' : 'Crear') }}
+                    </button>
+                    <button type="button" class="boton-secundario-enlace" @@click="cerrarModal">Cancelar</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Busqueda asíncrona demo -->
-    <div class="bloque-busqueda-async" style="margin-top:2rem">
+    <!-- Búsqueda asíncrona demo -->
+    <div class="bloque-busqueda-async">
         <h3>Búsqueda asíncrona de productos (requisito)</h3>
         <input v-model="qAsync" @@input="buscarAsyncProductos" placeholder="Busca producto por nombre..." />
-        <ul><li v-for="r in resultadosAsync">{{ r.nombre }} - ${{ r.precio }}</li></ul>
+        <ul v-if="resultadosAsync.length">
+            <li v-for="r in resultadosAsync" :key="r.id">{{ r.nombre }} - ${{ r.precio }}</li>
+        </ul>
     </div>
 </div>
 
 @section Scripts {
-<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<script>
-const { createApp, ref, onMounted } = Vue;
-createApp({
-    setup(){
-        const productos = ref([]); const total = ref(0); const page = ref(1); const totalPages = ref(1); const pageSize = 10;
-        const search = ref(''); const loading = ref(false);
-        const showModal = ref(false); const editando = ref(null);
-        const form = ref({ nombre:'', descripcion:'', precio:0, stock:0, empresaId: 1 });
-        const empresaQuery = ref(''); const empresasSugeridas = ref([]);
-        const qAsync = ref(''); const resultadosAsync = ref([]);
-        const API = '/api/productos';
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script>
+        const { createApp, ref, onMounted } = Vue;
 
-        const getToken = () => localStorage.getItem('jwt_token') || '';
+        createApp({
+            setup() {
+                const productos = ref([]);
+                const total = ref(0);
+                const page = ref(1);
+                const totalPages = ref(1);
+                const pageSize = 10;
+                const search = ref('');
+                const loading = ref(false);
+                const errorLista = ref('');
 
-        async function cargar(){
-            loading.value = true;
-            const res = await fetch(`${API}?page=${page.value}&pageSize=${pageSize}&search=${encodeURIComponent(search.value)}`);
-            const json = await res.json(); productos.value = json.data; total.value = json.total; totalPages.value = json.totalPages; loading.value=false;
-        }
-        function cambiarPagina(n){ page.value=n; cargar(); }
-        function debouncedBuscar(){ page.value=1; setTimeout(cargar,300); }
+                const showModal = ref(false);
+                const editando = ref(null);
+                const guardando = ref(false);
+                const errorModal = ref('');
 
-        function abrirModalCrear(){ editando.value=null; form.value={nombre:'',descripcion:'',precio:0,stock:0,empresaId:1}; showModal.value=true; }
-        function abrirModalEditar(p){ editando.value=p; form.value={nombre:p.nombre,descripcion:'',precio:p.precio,stock:p.stock,empresaId:p.empresaId}; showModal.value=true; }
+                const empresaIdInicial = @(ViewBag.EmpresaId ?? 0);
+                const formVacio = () => ({
+                    nombre: '',
+                    descripcion: '',
+                    precio: 0,
+                    stock: 0,
+                    empresaId: empresaIdInicial,
+                    archivo: null
+                });
+                const form = ref(formVacio());
 
-        async function guardar(){
-            const token = getToken();
-            const headers = { 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` };
-            const dto = { nombre: form.value.nombre, descripcion: form.value.descripcion, precio: form.value.precio, stock: form.value.stock, empresaId: form.value.empresaId };
-            let res;
-            if(editando.value){ res = await fetch(`${API}/${editando.value.id}`, { method:'PUT', headers, body: JSON.stringify(dto) }); }
-            else{ res = await fetch(API, { method:'POST', headers, body: JSON.stringify(dto) }); }
-            if(res.ok){ showModal.value=false; cargar(); } else { alert('Error - revisa token JWT'); }
-        }
-        async function eliminar(id){
-            if(!confirm('¿Eliminar?')) return;
-            const res = await fetch(`${API}/${id}`, { method:'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } });
-            if(res.ok || res.status===204) cargar();
-        }
+                const qAsync = ref('');
+                const resultadosAsync = ref([]);
 
-        // Búsqueda asíncrona de empresas (simulada - adapta a tu endpoint real)
-        async function buscarEmpresas(){
-            if(empresaQuery.value.length < 2) return;
-            // Aquí llamarías a /api/empresas/buscar?q=
-            // Por ahora mock
-            empresasSugeridas.value = [{ id:1, nombre: 'Empresa Demo', localidad: 'San Luis' }];
-        }
-        function seleccionarEmpresa(e){ form.value.empresaId = e.id; empresaQuery.value = e.nombre; empresasSugeridas.value=[]; }
+                const API = '/api/productos';
+                let temporizador = null;
 
-        async function buscarAsyncProductos(){
-            if(qAsync.value.length < 2) { resultadosAsync.value=[]; return; }
-            const res = await fetch(`${API}/buscar?q=${encodeURIComponent(qAsync.value)}`);
-            resultadosAsync.value = await res.json();
-        }
+                async function leerRespuesta(res) {
+                    const texto = await res.text();
+                    if (!texto) return null;
+                    try {
+                        return JSON.parse(texto);
+                    } catch {
+                        return { error: texto };
+                    }
+                }
 
-        onMounted(cargar);
-        return { productos, total, page, totalPages, search, loading, showModal, editando, form, empresaQuery, empresasSugeridas, qAsync, resultadosAsync, cargar, cambiarPagina, debouncedBuscar, abrirModalCrear, abrirModalEditar, guardar, eliminar, buscarEmpresas, seleccionarEmpresa, buscarAsyncProductos };
-    }
-}).mount('#app-vue-productos');
-</script>
-<style>.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999}.modal-contenido{min-width:400px}.sugerencias{background:#fff;border:1px solid #ddd;list-style:none;padding:0}.sugerencias li{padding:.5rem;cursor:pointer}.sugerencias li:hover{background:#f0f0f0}.paginacion-vue{display:flex;gap:1rem;justify-content:center;margin-top:1rem}</style>
+                function descripcionError(res, datos) {
+                    const detalle = datos && (datos.error || datos.title || datos.mensaje);
+                    return `Error ${res.status}${detalle ? ': ' + detalle : ''}`;
+                }
+
+                async function cargar() {
+                    loading.value = true;
+                    errorLista.value = '';
+
+                    try {
+                        const filtroEmpresa = empresaIdInicial > 0 ? `&empresaId=${empresaIdInicial}` : '';
+                        const res = await fetch(
+                            `${API}?page=${page.value}&pageSize=${pageSize}&search=${encodeURIComponent(search.value)}${filtroEmpresa}`,
+                            { credentials: 'same-origin' });
+
+                        const datos = await leerRespuesta(res);
+
+                        if (!res.ok) {
+                            errorLista.value = descripcionError(res, datos);
+                            productos.value = [];
+                            return;
+                        }
+
+                        productos.value = datos?.data ?? [];
+                        total.value = datos?.total ?? 0;
+                        totalPages.value = Math.max(1, datos?.totalPages ?? 1);
+                    } catch (e) {
+                        errorLista.value = 'No se pudo conectar con la API: ' + e.message;
+                        productos.value = [];
+                    } finally {
+                        loading.value = false;
+                    }
+                }
+
+                function cambiarPagina(n) {
+                    if (n < 1 || n > totalPages.value) return;
+                    page.value = n;
+                    cargar();
+                }
+
+                function debouncedBuscar() {
+                    page.value = 1;
+                    clearTimeout(temporizador);
+                    temporizador = setTimeout(cargar, 300);
+                }
+
+                function limpiarArchivo() {
+                    const input = document.getElementById('input-imagen-producto');
+                    if (input) input.value = '';
+                }
+
+                function cerrarModal() {
+                    showModal.value = false;
+                    errorModal.value = '';
+                    guardando.value = false;
+                    limpiarArchivo();
+                }
+
+                function abrirModalCrear() {
+                    editando.value = null;
+                    form.value = formVacio();
+                    errorModal.value = '';
+                    showModal.value = true;
+                    limpiarArchivo();
+                }
+
+                function abrirModalEditar(producto) {
+                    editando.value = producto;
+                    form.value = {
+                        nombre: producto.nombre ?? '',
+                        descripcion: producto.descripcion ?? '',
+                        precio: producto.precio ?? 0,
+                        stock: producto.stock ?? 0,
+                        empresaId: producto.empresaId ?? empresaIdInicial,
+                        archivo: null
+                    };
+                    errorModal.value = '';
+                    showModal.value = true;
+                    limpiarArchivo();
+                }
+
+                function onFileChange(evento) {
+                    const archivo = evento.target.files && evento.target.files[0];
+                    form.value.archivo = archivo || null;
+                }
+
+                function dtoJson() {
+                    return {
+                        nombre: form.value.nombre,
+                        descripcion: form.value.descripcion,
+                        precio: Number(form.value.precio) || 0,
+                        stock: Number(form.value.stock) || 0,
+                        empresaId: form.value.empresaId
+                    };
+                }
+
+                async function guardar() {
+                    if (guardando.value) return;
+
+                    if (!form.value.nombre || !form.value.nombre.trim()) {
+                        errorModal.value = 'El nombre del producto es obligatorio.';
+                        return;
+                    }
+
+                    guardando.value = true;
+                    errorModal.value = '';
+
+                    try {
+                        const archivo = form.value.archivo;
+                        let res;
+
+                        if (editando.value) {
+                            // Edición: primero los datos por JSON.
+                            res = await fetch(`${API}/${editando.value.id}`, {
+                                method: 'PUT',
+                                credentials: 'same-origin',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(dtoJson())
+                            });
+
+                            if (res.ok && archivo) {
+                                const datosImagen = new FormData();
+                                datosImagen.append('Imagen', archivo);
+                                res = await fetch(`${API}/${editando.value.id}/imagen`, {
+                                    method: 'POST',
+                                    credentials: 'same-origin',
+                                    body: datosImagen
+                                });
+                            }
+                        } else if (archivo) {
+                            // Alta con foto: multipart/form-data (sin Content-Type manual).
+                            const datos = new FormData();
+                            datos.append('Nombre', form.value.nombre);
+                            datos.append('Descripcion', form.value.descripcion ?? '');
+                            datos.append('Precio', String(Number(form.value.precio) || 0));
+                            datos.append('Stock', String(Number(form.value.stock) || 0));
+                            datos.append('Imagen', archivo);
+
+                            res = await fetch(`${API}/con-imagen`, {
+                                method: 'POST',
+                                credentials: 'same-origin',
+                                body: datos
+                            });
+                        } else {
+                            res = await fetch(API, {
+                                method: 'POST',
+                                credentials: 'same-origin',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(dtoJson())
+                            });
+                        }
+
+                        if (!res.ok) {
+                            const datos = await leerRespuesta(res);
+                            errorModal.value = descripcionError(res, datos);
+                            return;
+                        }
+
+                        cerrarModal();
+                        page.value = 1;
+                        await cargar();
+                    } catch (e) {
+                        errorModal.value = 'No se pudo guardar: ' + e.message;
+                    } finally {
+                        guardando.value = false;
+                    }
+                }
+
+                async function eliminar(id) {
+                    if (!confirm('¿Eliminar este producto?')) return;
+
+                    try {
+                        const res = await fetch(`${API}/${id}`, {
+                            method: 'DELETE',
+                            credentials: 'same-origin'
+                        });
+
+                        if (!res.ok && res.status !== 204) {
+                            const datos = await leerRespuesta(res);
+                            errorLista.value = descripcionError(res, datos);
+                            return;
+                        }
+
+                        await cargar();
+                    } catch (e) {
+                        errorLista.value = 'No se pudo eliminar: ' + e.message;
+                    }
+                }
+
+                async function buscarAsyncProductos() {
+                    if (qAsync.value.length < 2) {
+                        resultadosAsync.value = [];
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(
+                            `${API}/buscar?q=${encodeURIComponent(qAsync.value)}`,
+                            { credentials: 'same-origin' });
+
+                        if (!res.ok) {
+                            resultadosAsync.value = [];
+                            return;
+                        }
+
+                        resultadosAsync.value = (await leerRespuesta(res)) ?? [];
+                    } catch {
+                        resultadosAsync.value = [];
+                    }
+                }
+
+                onMounted(cargar);
+
+                return {
+                    productos, total, page, totalPages, search, loading, errorLista,
+                    showModal, editando, guardando, errorModal, form,
+                    qAsync, resultadosAsync,
+                    cargar, cambiarPagina, debouncedBuscar,
+                    abrirModalCrear, abrirModalEditar, cerrarModal, onFileChange,
+                    guardar, eliminar, buscarAsyncProductos
+                };
+            }
+        }).mount('#app-vue-productos');
+    </script>
 }
-</script>
