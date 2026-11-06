@@ -9,7 +9,7 @@ namespace MultiTenantCSharpVargas.Controllers;
 
 public class InicioController(ContextoAplicacion db, ILogger<InicioController> registro) : Controller
 {
-    private const int TamanoPagina = 3;
+    private const int TamanoPagina = 6;
 
     public async Task<IActionResult> Inicio(string vista = "empresas", string? q = null, int pagina = 1)
     {
@@ -21,7 +21,8 @@ public class InicioController(ContextoAplicacion db, ILogger<InicioController> r
         {
             Vista = vista,
             Busqueda = q,
-            Pagina = pagina
+            Pagina = pagina,
+            TamanoPagina = TamanoPagina
         };
 
         try

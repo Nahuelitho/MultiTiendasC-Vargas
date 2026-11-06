@@ -143,11 +143,21 @@ public class ComercianteController(
         {
             Pagina = pagina,
             TotalPaginas = totalPaginas,
+            PageSize = TamanoPaginaProductos,
+            TotalItems = total,
             Controlador = "Comerciante",
             Accion = nameof(Productos)
         };
 
-        return View(productos.Select(Mapear).ToList());
+        return View(new CatalogoVista
+        {
+            Vista = "productos",
+            Pagina = pagina,
+            TamanoPagina = TamanoPaginaProductos,
+            TotalRegistros = total,
+            TotalPaginas = totalPaginas,
+            Productos = productos.Select(Mapear).ToList()
+        });
     }
 
     public async Task<IActionResult> CrearProducto()

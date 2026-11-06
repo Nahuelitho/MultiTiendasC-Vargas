@@ -1,23 +1,35 @@
 @model PaginacionVista
 @using MultiTenantCSharpVargas.ViewModels
 @{
-    var totalPages = Model.TotalPages;
-    if (totalPages == 0) totalPages = 1;
-    var current = Model.Page;
-    var size = Model.PageSize;
+    var totalPages = Math.Max(1, Model.TotalPaginas);
+    var current = Math.Clamp(Model.Pagina, 1, totalPages);
+    var size = Math.Max(1, Model.PageSize);
     var total = Model.TotalItems;
-    var busqueda = Model.Busqueda;
-    var vista = Model.Vista;
+    var primero = total == 0 ? 0 : ((current - 1) * size) + 1;
+    var ultimo = Math.Min(current * size, total);
+
+    // El paginado público usa "pagina" y "q"; el del comerciante usa "pagina".
+    // Armamos el diccionario a mano para que no se pierdan los filtros.
+    Dictionary<string, string> Ruta(int numeroPagina)
+    {
+        var valores = new Dictionary<string, string>(Model.Parametros)
+        {
+            ["pagina"] = numeroPagina.ToString()
+        };
+        return valores;
+    }
 }
 
 @if (totalPages > 1)
 {
     <nav class="paginacion-nav" aria-label="Paginación">
         <a class="pag-btn @(current == 1 ? "disabled" : "")"
-           asp-route-page="1" asp-route-pageSize="@size" asp-route-busqueda="@busqueda" asp-route-vista="@vista">« Primera</a>
+           asp-controller="@Model.Controlador" asp-action="@Model.Accion"
+           asp-all-route-data="Ruta(1)">« Primera</a>
 
         <a class="pag-btn @(current == 1 ? "disabled" : "")"
-           asp-route-page="@(current - 1)" asp-route-pageSize="@size" asp-route-busqueda="@busqueda" asp-route-vista="@vista">« Anterior</a>
+           asp-controller="@Model.Controlador" asp-action="@Model.Accion"
+           asp-all-route-data="Ruta(Math.Max(1, current - 1))">« Anterior</a>
 
         @for (int i = 1; i <= totalPages; i++)
         {
@@ -27,7 +39,9 @@
             }
             else if (i <= 2 || i > totalPages - 2 || Math.Abs(i - current) <= 1)
             {
-                <a class="pag-btn" asp-route-page="@i" asp-route-pageSize="@size" asp-route-busqueda="@busqueda" asp-route-vista="@vista">@i</a>
+                <a class="pag-btn"
+                   asp-controller="@Model.Controlador" asp-action="@Model.Accion"
+                   asp-all-route-data="Ruta(i)">@i</a>
             }
             else if (Math.Abs(i - current) == 2)
             {
@@ -36,13 +50,15 @@
         }
 
         <a class="pag-btn @(current == totalPages ? "disabled" : "")"
-           asp-route-page="@(current + 1)" asp-route-pageSize="@size" asp-route-busqueda="@busqueda" asp-route-vista="@vista">Siguiente »</a>
+           asp-controller="@Model.Controlador" asp-action="@Model.Accion"
+           asp-all-route-data="Ruta(Math.Min(totalPages, current + 1))">Siguiente »</a>
 
         <a class="pag-btn @(current == totalPages ? "disabled" : "")"
-           asp-route-page="@totalPages" asp-route-pageSize="@size" asp-route-busqueda="@busqueda" asp-route-vista="@vista">Última »</a>
+           asp-controller="@Model.Controlador" asp-action="@Model.Accion"
+           asp-all-route-data="Ruta(totalPages)">Última »</a>
     </nav>
-    
+
     <div class="paginacion-info">
-        Mostrando @size de @total comercios
+        Mostrando @primero-@ultimo de @total registros
     </div>
 }

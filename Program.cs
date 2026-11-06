@@ -100,13 +100,14 @@ builder.Services.AddCors(o => o.AddPolicy("AllowAll", p => p.AllowAnyOrigin().Al
 
 var app = builder.Build();
 
-// Migraciones auto
+// Migraciones auto + datos de demostración
 using(var scope = app.Services.CreateScope()){
     try{
         var ctx = scope.ServiceProvider.GetRequiredService<ContextoAplicacion>();
         ctx.Database.Migrate();
+        await SeedDatos.SembrarAsync(ctx, app.Logger);
     }catch(Exception ex){
-        Console.WriteLine($"Migración falló: {ex.Message}");
+        Console.WriteLine($"Migración/seed falló: {ex.Message}");
     }
 }
 

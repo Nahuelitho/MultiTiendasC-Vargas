@@ -7,6 +7,7 @@ public class CatalogoVista : IEnumerable<TarjetaProductoVista>
     public string Vista { get; set; } = "empresas";
     public string? Busqueda { get; set; }
     public int Pagina { get; set; } = 1;
+    public int TamanoPagina { get; set; } = 6;
     public int TotalRegistros { get; set; }
     public int TotalPaginas { get; set; } = 1;
     public string? MensajeError { get; set; }
