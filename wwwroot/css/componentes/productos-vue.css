@@ -3,6 +3,11 @@
    El modal vive en productos-vue-modal.css
    ============================================================ */
 
+/* Evita el destello de {{ }} y del modal antes de que Vue monte la app. */
+[v-cloak] {
+    display: none;
+}
+
 .vue-productos .acciones-panel {
     display: flex;
     flex-wrap: wrap;

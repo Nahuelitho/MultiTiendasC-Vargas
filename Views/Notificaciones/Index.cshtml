@@ -1,0 +1,40 @@
+@model IEnumerable<MultiTenantCSharpVargas.Models.Notificacion>
+@using MultiTenantCSharpVargas.ViewModels
+
+@{
+    ViewData["Title"] = "Notificaciones";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/panel-admin.css" asp-append-version="true" />
+}
+
+<div class="panel-admin">
+    <h2>Notificaciones</h2>
+
+    <div class="acciones-panel">
+        <a asp-controller="Inicio" asp-action="Inicio">Volver al inicio</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <p class="texto-tenue">No tenés notificaciones por ahora.</p>
+    }
+    else
+    {
+        <div class="lista-notificaciones">
+            @foreach (var notificacion in Model)
+            {
+                <article class="notificacion-item">
+                    <div class="notificacion-cabecera">
+                        <strong>@notificacion.Titulo</strong>
+                        <small>@notificacion.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                    <p>@notificacion.Mensaje</p>
+                </article>
+            }
+        </div>
+
+        <partial name="_Paginacion" model="(PaginacionVista)ViewBag.Paginacion" />
+    }
+</div>

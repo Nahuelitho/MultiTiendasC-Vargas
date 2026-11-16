@@ -283,3 +283,91 @@
     font-size: 13px;
     margin-top: 12px;
 }
+
+/* Valoraciones de comercios */
+.detalle-valoracion {
+    margin: 32px 0;
+    padding: 24px;
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+}
+
+.valoracion-promedio {
+    margin: 0 0 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--naranja-oscuro);
+}
+
+.valoracion-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 520px;
+    margin-bottom: 20px;
+}
+
+.estrellas {
+    display: flex;
+    gap: 2px;
+}
+
+.estrella {
+    position: relative;
+    cursor: pointer;
+}
+
+.estrella input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.estrella span {
+    font-size: 1.7rem;
+    line-height: 1;
+    color: #ddd;
+    transition: color .15s;
+}
+
+.estrella input:checked + span,
+.estrella:hover span {
+    color: var(--naranja-principal);
+}
+
+.estrella input:focus-visible + span {
+    outline: 2px solid var(--naranja-principal);
+    outline-offset: 2px;
+    border-radius: 3px;
+}
+
+.valoracion-comentarios {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.valoracion-comentario {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #fafafa;
+    border: 1px solid #eee;
+}
+
+.valoracion-comentario p {
+    margin: 6px 0;
+}
+
+.valoracion-comentario small {
+    color: #888;
+    font-size: .75rem;
+}
+
+.valoracion-estrellas {
+    margin-left: 6px;
+    color: var(--naranja-principal);
+    letter-spacing: 1px;
+}

@@ -1,0 +1,10 @@
+@model int
+
+<a class="campana" asp-controller="Notificaciones" asp-action="Index"
+   aria-label="Notificaciones@(Model > 0 ? $" ({Model} sin leer)" : "")">
+    <span aria-hidden="true">🔔</span>
+    @if (Model > 0)
+    {
+        <span class="campana-contador">@(Model > 9 ? "9+" : Model.ToString())</span>
+    }
+</a>

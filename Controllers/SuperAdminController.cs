@@ -16,7 +16,6 @@ namespace MultiTenantCSharpVargas.Controllers;
 public class SuperAdminController(ContextoAplicacion db, ILogger<SuperAdminController> registro) : Controller
 {
     private const int TamanoPaginaAdmin = 10;
-    private const int TamanoPaginaRoles = 8;
 
     private int UsuarioIdActual => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -145,9 +144,6 @@ public class SuperAdminController(ContextoAplicacion db, ILogger<SuperAdminContr
             .ToListAsync();
         return View(roles);
     }
-
-    // CRUD de roles con Vue + AJAX (los endpoints están más abajo).
-    public IActionResult RolesVue() => View();
 
     public IActionResult CrearRol() => View();
 
@@ -565,208 +561,6 @@ public class SuperAdminController(ContextoAplicacion db, ILogger<SuperAdminContr
         return RedirectToAction(nameof(Empresas));
     }
 
-    // ----------------------------- API JSON de Roles (Vue) -----------------------------
-
-    [HttpGet]
-    public async Task<IActionResult> ApiRoles(string? q = null, int pagina = 1, int tamano = TamanoPaginaRoles)
-    {
-        tamano = Math.Clamp(tamano, 1, 50);
-        q = string.IsNullOrWhiteSpace(q) ? null : q.Trim();
-
-        var consulta = db.Roles.AsNoTracking();
-
-        if (q is not null)
-        {
-            consulta = consulta.Where(r => r.Nombre.Contains(q) || r.Codigo.Contains(q));
-        }
-
-        var (paginaActual, totalPaginas, total) = await CalcularPaginaAsync(consulta, pagina, tamano);
-
-        var roles = await consulta
-            .OrderBy(r => r.Id)
-            .Skip((paginaActual - 1) * tamano)
-            .Take(tamano)
-            .Select(r => new RolApiVista
-            {
-                Id = r.Id,
-                Nombre = r.Nombre,
-                Codigo = r.Codigo,
-                Activo = r.Activo,
-                Usuarios = r.UsuarioRoles.Count
-            })
-            .ToListAsync();
-
-        foreach (var rol in roles)
-        {
-            rol.Protegido = rol.Codigo == "SUPER_ADMIN";
-        }
-
-        return Json(new { pagina = paginaActual, totalPaginas, total, roles });
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ApiCrearRol([FromBody] RolEntradaApiDto? entrada)
-    {
-        var nombre = entrada?.Nombre?.Trim() ?? string.Empty;
-        var codigo = NormalizarCodigo(entrada?.Codigo);
-
-        var error = ValidarDatosRol(nombre, codigo);
-        if (error is not null)
-        {
-            return BadRequest(new { mensaje = error });
-        }
-
-        if (await db.Roles.AnyAsync(r => r.Codigo == codigo))
-        {
-            return Conflict(new { mensaje = "Ya existe un rol con ese código." });
-        }
-
-        var rol = new Rol { Nombre = nombre, Codigo = codigo, Activo = true };
-
-        try
-        {
-            db.Roles.Add(rol);
-            await db.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            registro.LogError(ex, "No se pudo crear el rol {Codigo}.", codigo);
-            return StatusCode(500, new { mensaje = "No pudimos crear el rol. Intentá nuevamente." });
-        }
-
-        return Json(new
-        {
-            mensaje = "Rol creado correctamente.",
-            rol = new RolApiVista
-            {
-                Id = rol.Id,
-                Nombre = rol.Nombre,
-                Codigo = rol.Codigo,
-                Activo = rol.Activo,
-                Usuarios = 0,
-                Protegido = rol.Codigo == "SUPER_ADMIN"
-            }
-        });
-    }
-
-    private string NormalizarCodigo(object codigo)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpPut]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ApiActualizarRol(int id, [FromBody] RolEntradaApiDto? entrada)
-    {
-        var rol = await db.Roles.FirstOrDefaultAsync(r => r.Id == id);
-        if (rol is null)
-        {
-            return NotFound(new { mensaje = "El rol no existe." });
-        }
-
-        var nombre = entrada?.Nombre?.Trim() ?? string.Empty;
-        var codigo = NormalizarCodigo(entrada?.Codigo);
-        var activo = entrada?.Activo ?? rol.Activo;
-
-        var error = ValidarDatosRol(nombre, codigo);
-        if (error is not null)
-        {
-            return BadRequest(new { mensaje = error });
-        }
-
-        if (rol.Codigo == "SUPER_ADMIN" && (codigo != "SUPER_ADMIN" || !activo))
-        {
-            return BadRequest(new { mensaje = "El rol SUPER_ADMIN no puede cambiar de código ni desactivarse." });
-        }
-
-        if (await db.Roles.AnyAsync(r => r.Id != id && r.Codigo == codigo))
-        {
-            return Conflict(new { mensaje = "Ya existe otro rol con ese código." });
-        }
-
-        rol.Nombre = nombre;
-        rol.Codigo = codigo;
-        rol.Activo = activo;
-
-        try
-        {
-            await db.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            registro.LogError(ex, "No se pudo actualizar el rol {Id}.", id);
-            return StatusCode(500, new { mensaje = "No pudimos guardar los cambios del rol." });
-        }
-
-        var usuarios = await db.UsuarioRoles.CountAsync(ur => ur.RolId == id);
-
-        return Json(new
-        {
-            mensaje = "Rol actualizado correctamente.",
-            rol = new RolApiVista
-            {
-                Id = rol.Id,
-                Nombre = rol.Nombre,
-                Codigo = rol.Codigo,
-                Activo = rol.Activo,
-                Usuarios = usuarios,
-                Protegido = rol.Codigo == "SUPER_ADMIN"
-            }
-        });
-    }
-
-    [HttpDelete]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ApiEliminarRol(int id)
-    {
-        var rol = await db.Roles
-            .Include(r => r.UsuarioRoles)
-            .FirstOrDefaultAsync(r => r.Id == id);
-
-        if (rol is null)
-        {
-            return NotFound(new { mensaje = "El rol no existe." });
-        }
-
-        if (rol.Codigo == "SUPER_ADMIN")
-        {
-            return BadRequest(new { mensaje = "El rol SUPER_ADMIN no se puede eliminar ni desactivar." });
-        }
-
-        bool eliminado;
-
-        if (rol.UsuarioRoles.Count > 0)
-        {
-            // Conserva el historial: si tiene usuarios asignados, solo se desactiva.
-            rol.Activo = false;
-            eliminado = false;
-        }
-        else
-        {
-            db.Roles.Remove(rol);
-            eliminado = true;
-        }
-
-        try
-        {
-            await db.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            registro.LogError(ex, "No se pudo eliminar el rol {Id}.", id);
-            return StatusCode(500, new { mensaje = "No podemos eliminar el rol. Intentá nuevamente." });
-        }
-
-        return Json(new
-        {
-            mensaje = eliminado
-                ? "Rol eliminado correctamente."
-                : "El rol tiene usuarios asignados, así que se desactivó para conservar el historial.",
-            eliminado
-        });
-    }
-
     // ----------------------------- Auxiliares -----------------------------
 
     private async Task<IActionResult> VolverConErrorAsync(string mensaje)
@@ -790,43 +584,6 @@ public class SuperAdminController(ContextoAplicacion db, ILogger<SuperAdminContr
         return (pagina, totalPaginas, total);
     }
 
-    private static string? ValidarDatosRol(string nombre, string codigo)
-    {
-        if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(codigo))
-        {
-            return "El nombre y el código son obligatorios.";
-        }
-
-        if (nombre.Length > 40 || codigo.Length > 40)
-        {
-            return "El nombre y el código no pueden superar los 40 caracteres.";
-        }
-
-        if (!Regex.IsMatch(codigo, "^[A-Z0-9_]+$"))
-        {
-            return "El código solo puede contener letras, números y guiones bajos.";
-        }
-
-        return null;
-    }
-
     private static string NormalizarCodigo(string? codigo) =>
         (codigo ?? string.Empty).Trim().ToUpperInvariant().Replace(' ', '_');
-}
-
-public class RolEntradaApiDto
-{
-    public string? Nombre { get; set; }
-    public string? Codigo { get; set; }
-    public bool? Activo { get; set; }
-}
-
-internal class RolApiVista
-{
-    public int Id { get; set; }
-    public string Nombre { get; set; }
-    public string Codigo { get; set; }
-    public bool Activo { get; set; }
-    public int Usuarios { get; set; }
-    public bool Protegido { get; internal set; }
 }

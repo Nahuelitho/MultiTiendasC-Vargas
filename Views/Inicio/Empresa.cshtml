@@ -63,6 +63,84 @@
         </aside>
     </div>
 
+    <section class="detalle-valoracion">
+        <div class="encabezado-seccion">
+            <span class="etiqueta-seccion">Valoraciones</span>
+            <h2>Qué opinan los clientes</h2>
+        </div>
+
+        @if (Model.Empresa.CantidadValoraciones > 0)
+        {
+            <p class="valoracion-promedio">
+                ★ @Model.Empresa.PromedioValoracion.ToString("0.0") de 5
+                <span class="texto-tenue">(@Model.Empresa.CantidadValoraciones valoración@(Model.Empresa.CantidadValoraciones == 1 ? "" : "es"))</span>
+            </p>
+        }
+
+        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("CLIENTE"))
+        {
+            <form class="valoracion-form" asp-controller="Valoracion" asp-action="Crear" method="post">
+                <input type="hidden" name="empresaId" value="@Model.Empresa.Id" />
+
+                <div class="campo">
+                    <label>Tu puntuación</label>
+                    <div class="estrellas">
+                        @for (var estrella = 1; estrella <= 5; estrella++)
+                        {
+                            <label class="estrella" title="@estrella estrella@(estrella == 1 ? "" : "s")">
+                                <input type="radio" name="puntuacion" value="@estrella"
+                                       checked="@(Model.MiValoracion == estrella)" required />
+                                <span aria-hidden="true">★</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="comentario">Comentario (opcional)</label>
+                    <br/>
+                    <textarea id="comentario" name="comentario" maxlength="500"
+                              placeholder="Contá cómo fue tu experiencia...">@Model.MiComentario</textarea>
+                </div>
+
+                <button type="submit">
+                    @(Model.MiValoracion.HasValue ? "Actualizar mi valoración" : "Enviar valoración")
+                </button>
+                <small class="texto-tenue">Solo se permite una valoración por cliente y comercio.</small>
+            </form>
+        }
+        else if (User.Identity?.IsAuthenticated == true)
+        {
+            <p class="texto-tenue">Solo los usuarios con rol Cliente pueden valorar comercios.</p>
+        }
+        else
+        {
+            <p class="texto-tenue">
+                <a asp-controller="Cuenta" asp-action="Login">Iniciá sesión</a> como cliente para valorar este comercio.
+            </p>
+        }
+
+        @if (Model.Comentarios.Count > 0)
+        {
+            <div class="valoracion-comentarios">
+                @foreach (var comentario in Model.Comentarios)
+                {
+                    <article class="valoracion-comentario">
+                        <div>
+                            <strong>@comentario.Usuario</strong>
+                            <span class="valoracion-estrellas" aria-label="@comentario.Puntuacion de 5">@(new string('★', comentario.Puntuacion))</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(comentario.Comentario))
+                        {
+                            <p>@comentario.Comentario</p>
+                        }
+                        <small>@comentario.Fecha.ToLocalTime().ToString("dd/MM/yyyy")</small>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
     <section class="detalle-productos">
         <div class="encabezado-seccion">
             <span class="etiqueta-seccion">Productos</span>

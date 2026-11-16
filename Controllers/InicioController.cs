@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -188,11 +189,37 @@ public class InicioController(ContextoAplicacion db, ILogger<InicioController> r
             })
             .ToListAsync();
 
-        return View(new DetalleEmpresaVista
+        var modelo = new DetalleEmpresaVista
         {
             Empresa = empresa,
             Productos = productos
-        });
+        };
+
+        // Valoración del usuario logueado (solo puede haber una por cliente/empresa).
+        if (User.Identity?.IsAuthenticated == true &&
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var usuarioId))
+        {
+            var miValoracion = await db.Valoraciones.AsNoTracking()
+                .FirstOrDefaultAsync(v => v.EmpresaId == id && v.UsuarioId == usuarioId);
+
+            modelo.MiValoracion = miValoracion?.Puntuacion;
+            modelo.MiComentario = miValoracion?.Comentario;
+        }
+
+        modelo.Comentarios = await db.Valoraciones.AsNoTracking()
+            .Where(v => v.EmpresaId == id && v.Comentario != null && v.Comentario != string.Empty)
+            .OrderByDescending(v => v.FechaCreacion)
+            .Take(10)
+            .Select(v => new ComentarioValoracionVista
+            {
+                Usuario = v.Usuario.Nombre,
+                Puntuacion = v.Puntuacion,
+                Comentario = v.Comentario,
+                Fecha = v.FechaCreacion
+            })
+            .ToListAsync();
+
+        return View(modelo);
     }
 
     public async Task<IActionResult> Producto(int id)

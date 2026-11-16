@@ -22,16 +22,11 @@
   font-weight: 700;
 }
 
-.distintivo-marca {
-  display: grid;
+.logo-marca {
   width: 36px;
   height: 36px;
-  place-items: center;
-  border: 2px solid var(--naranja-principal);
-  border-radius: 50%;
-  color: var(--naranja-oscuro);
-  font-size: .75rem;
-  font-weight: 800;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .barra-busqueda input {

@@ -4,6 +4,57 @@ Proyecto Integrador Final - Sitio Web MVC - ULP 2026 - Lab 2
 
 ---
 
+## Cómo iniciar el proyecto
+
+Esto es **un solo proyecto ASP.NET Core MVC** (no hay frontend separado). El Vue se carga por CDN dentro de las vistas, así que **no hace falta `npm install` ni `npm run dev`**. La API (`/api/...`) corre en el mismo proceso que la web: alcanza con `dotnet run`.
+
+### Requisitos
+
+- .NET 8 SDK
+- MySQL 8 / MariaDB (por ejemplo XAMPP) iniciado
+- Herramienta de EF Core (solo la primera vez):
+
+```powershell
+dotnet tool install --global dotnet-ef --version 9.*
+```
+
+### 1. Configurar la conexión
+
+Editá `appsettings.Development.json` y poné los datos de tu MySQL:
+
+```json
+"ConnectionStrings": {
+  "BaseDeDatos": "Server=localhost;Port=3306;Database=tu_tienda_cerca;User ID=root;Password=TU_PASSWORD;"
+}
+```
+
+> `appsettings.Development.json` se usa cuando corrés con `dotnet run` (entorno Development). Si tu usuario root no tiene contraseña, dejá `Password=;`.
+
+### 2. Crear/actualizar la base de datos
+
+Desde la carpeta del proyecto (donde está `MultiTenantCSharpVargas.csproj`):
+
+```powershell
+dotnet restore
+dotnet ef database update
+```
+
+`dotnet ef database update` aplica las migraciones y crea la base `tu_tienda_cerca` si no existe. La app también aplica las migraciones y el seed automáticamente al iniciar (`Program.cs`), así que este paso es opcional si preferís que lo haga el arranque.
+
+### 3. Ejecutar
+
+```powershell
+dotnet run
+```
+
+Abrí **http://localhost:5122** (perfil `http` de `Properties/launchSettings.json`). El seed de demostración se ejecuta solo al iniciar.
+
+- Web MVC: `http://localhost:5122`
+- API REST: `http://localhost:5122/api/...`
+- ABM Vue: `http://localhost:5122/Comerciante/ProductosVue` (con un usuario COMERCIANTE)
+
+---
+
 ## 0. Credenciales y configuración
 
 ### Usuarios de prueba (se crean por migración)
@@ -103,6 +154,8 @@ var res = await _ctx.Productos.Where(p => p.Nombre.Contains(q)).Take(10).ToListA
 ### ABM Vue.js SPA
 Lo hice en Views/Comerciante/ProductosVue.cshtml con Vue 3 por CDN. Todo lo hago con fetch a /api/productos: listar, crear, editar y eliminar sin hacer reload. La ruta es /Comerciante/ProductosVue y redirigí el Index del comerciante para que vaya directo ahí.
 
+**Alcance de Vue (para la defensa):** Vue se usa **solo** en `ProductosVue`. La búsqueda pública de comercios y productos es MVC clásico con formulario GET y filtros en `InicioController` (`q` + `pagina`), sin Vue ni AJAX. La gestión de roles también es MVC (`SuperAdminController` + `Views/SuperAdmin/Roles.cshtml`): la vista `RolesVue` se eliminó porque estaba rota y duplicaba funcionalidad. La campanita de notificaciones es un `ViewComponent` renderizado en servidor, sin JavaScript.
+
 ### Web API + JWT
 Usé ServicioJwt.cs para generar el token con los roles del usuario. En AuthApiController hice el login que devuelve el token y en Program.cs configuré el doble esquema: cookies para el MVC y Bearer para la API. Los endpoints de crear, editar y eliminar productos están protegidos con [Authorize(Roles="COMERCIANTE,SUPER_ADMIN")].
 
@@ -165,13 +218,13 @@ La app ya consume la API desde el Vue, pero dejé la colección para la defensa.
 
 ## 7. Cómo correr el proyecto
 
+Los pasos completos están al inicio del README, en **“Cómo iniciar el proyecto”**. Resumen:
+
 ```powershell
 dotnet restore
 dotnet ef database update
 dotnet run
 # Abrir http://localhost:5122
-# Login con Comerciante1@test.com / Comerciante123.
-# Ir a /Comerciante/ProductosVue para ver el ABM Vue con paginado.
 ```
 
 La aplicación aplica las migraciones y el seed de demostración automáticamente al iniciar. Para volver a sembrar los datos, alcanza con borrar las empresas de demo (o la base) y reiniciar.
@@ -196,4 +249,6 @@ Archivo: docs/DER.png
 ## 9. Qué falta pulir
 
 El ABM Vue ya funciona creando productos con y sin foto. Queda grabar el video corto mostrando el flujo sin recargar para la defensa y terminar de pulir los estilos del catálogo.
+
+**Carrito y compras:** los modelos `Carrito`, `CarritoItem`, `Pedido` y `PedidoItem` ya existen con sus tablas y migraciones, pero todavía no hay controladores ni vistas. Hoy no se puede comprar: el carrito es el próximo paso natural.
 

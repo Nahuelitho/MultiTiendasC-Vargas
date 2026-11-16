@@ -24,22 +24,19 @@ public class AuthApiController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         var usuario = await _ctx.Usuarios
-            .Include(u => u.Roles) // si tenés tabla intermedia UsuarioRol
+            .Include(u => u.UsuarioRoles)
+            .ThenInclude(ur => ur.Rol)
             .FirstOrDefaultAsync(u => u.Correo == dto.Email);
-            
-        if(usuario == null) return Unauthorized(new { error = "Credenciales inválidas" });
 
-        // TODO: verifica con BCrypt - por ahora lo dejamos pasar
-        // bool passOk = BCrypt.Net.BCrypt.Verify(dto.Password, usuario.PasswordHash);
+        if (usuario is null || !PasswordHasher.Verify(dto.Password, usuario.ContrasenaHash))
+        {
+            return Unauthorized(new { error = "Credenciales inválidas" });
+        }
 
-        // Armamos la lista de roles como string
-        var roles = new List<string>();
-        // Si tu Usuario tiene propiedad Rol:
-        // roles.Add(usuario.Rol.ToString());
-        // Si tenés relación muchos a muchos, mapeala acá
-        
-        // Fallback para que no falle si aún no tenés roles cargados
-        if(!roles.Any()) roles.Add("COMERCIANTE"); 
+        var roles = usuario.UsuarioRoles
+            .Where(ur => ur.Rol.Activo)
+            .Select(ur => ur.Rol.Codigo)
+            .ToList();
 
         var token = _jwt.GenerarToken(usuario, roles);
         return Ok(new { token, usuario = new { usuario.Id, usuario.Nombre, usuario.Correo, roles }, expiresIn = 28800 });
@@ -49,7 +46,8 @@ public class AuthApiController : ControllerBase
     [Microsoft.AspNetCore.Authorization.Authorize(AuthenticationSchemes = "Bearer")]
     public IActionResult Me()
     {
-        return Ok(new { 
+        return Ok(new
+        {
             id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
             nombre = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value,
             email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value,

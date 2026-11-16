@@ -9,13 +9,14 @@
     <link rel="stylesheet" href="~/css/estilos.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/cabecera.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/componentes/tarjetas.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/notificaciones.css" asp-append-version="true" />
     @await RenderSectionAsync("Estilos", required: false)
 </head>
 <body>
     <header class="encabezado">
         <div class="contenedor-encabezado">
             <a class="marca" asp-area="" asp-controller="Inicio" asp-action="Inicio" aria-label="Ir al inicio de Tu Tienda Cerca">
-                <span class="distintivo-marca" aria-hidden="true">tt</span>
+                <img class="logo-marca" src="~/imagenes/favicon.png" alt="" aria-hidden="true" asp-append-version="true" />
                 <span>Tu Tienda Cerca</span>
             </a>
 
@@ -39,6 +40,8 @@
                         <a asp-area="" asp-controller="Comerciante" asp-action="Index">Panel Comerciante</a>
                     }
                     <a asp-area="" asp-controller="Perfil" asp-action="Index">Mi perfil</a>
+                    @await Component.InvokeAsync("NotificacionesCampana")
+
                     <span class="usuario">@User.Identity!.Name</span>
                     <a asp-area="" asp-controller="Cuenta" asp-action="Logout">Cerrar sesión</a>
                 }

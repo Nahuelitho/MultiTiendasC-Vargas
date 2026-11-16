@@ -1,12 +1,5 @@
 namespace MultiTenantCSharpVargas.Models;
 
-public enum RolUsuario
-{
-    Cliente,
-    Comerciante,
-    Administrador
-}
-
 public enum EstadoEmpresa
 {
     Pendiente,
