@@ -36,6 +36,12 @@
             <input type="text" name="Telefono" value="@Model?.Telefono" maxlength="100" />
         </div>
         <div class="campo">
+            <label>WhatsApp para pedidos</label>
+            <input type="tel" name="WhatsApp" value="@Model?.WhatsApp" maxlength="30"
+                   placeholder="Ej: 5491123456789" />
+            <small class="texto-tenue">Con código de país y sin espacios ni guiones. Lo usamos para el botón de compra del carrito.</small>
+        </div>
+        <div class="campo">
             <label>Medios de pago</label>
             <input type="text" name="MediosDePago" value="@Model?.MediosDePago" maxlength="250" />
         </div>

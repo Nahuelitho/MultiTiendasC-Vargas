@@ -184,6 +184,10 @@ namespace MultiTenantCSharpVargas.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<string>("WhatsApp")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PropietarioId");

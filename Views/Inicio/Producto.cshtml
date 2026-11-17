@@ -74,6 +74,13 @@
             {
                 <li><strong>Teléfono:</strong> @Model.EmpresaTelefono</li>
             }
+            @if (Model.EmpresaTieneWhatsApp)
+            {
+                <li>
+                    <strong>WhatsApp:</strong>
+                    <a href="@Model.EmpresaEnlaceWhatsApp" target="_blank" rel="noopener noreferrer">@Model.EmpresaWhatsApp</a>
+                </li>
+            }
             <li><strong>Delivery:</strong> @(Model.EmpresaOfreceDelivery ? "Sí" : "No")</li>
             @if (!string.IsNullOrWhiteSpace(Model.EmpresaMediosDePago))
             {

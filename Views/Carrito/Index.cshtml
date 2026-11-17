@@ -80,6 +80,38 @@
             <strong>Total: $ @Model.Total.ToString("N2")</strong>
         </div>
 
+        <section class="carrito-finalizar">
+            <div class="encabezado-seccion">
+                <span class="etiqueta-seccion">Finalizar compra</span>
+                <h2>Pedí por WhatsApp</h2>
+                <p>El pedido se envía al comercio con el detalle y el total ya cargados.</p>
+            </div>
+
+            @foreach (var empresa in Model.Empresas)
+            {
+                <div class="carrito-finalizar-empresa">
+                    <div class="carrito-finalizar-datos">
+                        <strong>@empresa.EmpresaNombre</strong>
+                        <span>@empresa.CantidadTotal unidad(es) · $ @empresa.Subtotal.ToString("N2")</span>
+                    </div>
+
+                    @if (empresa.TieneWhatsApp)
+                    {
+                        <a class="boton-whatsapp" href="@empresa.EnlaceWhatsApp"
+                           target="_blank" rel="noopener noreferrer">
+                            Comprar por WhatsApp
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="carrito-sin-whatsapp">
+                            Este comercio todavía no cargó un WhatsApp de contacto.
+                        </span>
+                    }
+                </div>
+            }
+        </section>
+
         <div class="carrito-acciones">
             <a class="boton-secundario-enlace" asp-controller="Inicio" asp-action="Inicio" asp-route-vista="productos">
                 Seguir comprando

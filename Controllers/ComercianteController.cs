@@ -58,28 +58,22 @@ public class ComercianteController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CrearEmpresa(Empresa empresa)
+    public async Task<IActionResult> CrearEmpresa(CrearEmpresaVista modelo)
     {
         if (await db.Empresas.AnyAsync(e => e.PropietarioId == UsuarioId))
         {
             return RedirectToAction(nameof(Index));
         }
 
-        empresa.Nombre = empresa.Nombre?.Trim() ?? string.Empty;
-        empresa.Descripcion = string.IsNullOrWhiteSpace(empresa.Descripcion) ? null : empresa.Descripcion.Trim();
-        empresa.Direccion = empresa.Direccion?.Trim() ?? string.Empty;
-        empresa.Localidad = empresa.Localidad?.Trim() ?? string.Empty;
-        empresa.Telefono = string.IsNullOrWhiteSpace(empresa.Telefono) ? null : empresa.Telefono.Trim();
-        empresa.MediosDePago = string.IsNullOrWhiteSpace(empresa.MediosDePago) ? null : empresa.MediosDePago.Trim();
+        var empresa = new Empresa { PropietarioId = UsuarioId };
+        AplicarVista(empresa, modelo);
+        NormalizarEmpresa(empresa);
 
         if (!ModelState.IsValid)
         {
-            return View(empresa);
+            return View(modelo);
         }
 
-        // Ignora cualquier identificador enviado por el navegador.
-        empresa.Id = 0;
-        empresa.PropietarioId = UsuarioId;
         empresa.Estado = EstadoEmpresa.Pendiente;
         empresa.FechaAlta = DateTime.UtcNow;
 
@@ -102,11 +96,55 @@ public class ComercianteController(
         {
             registro.LogError(ex, "No se pudo crear la empresa del usuario {UsuarioId}.", UsuarioId);
             ModelState.AddModelError(string.Empty, "No pudimos crear la empresa. Intentá nuevamente.");
-            return View(empresa);
+            return View(modelo);
         }
 
         TempData["Mensaje"] = "Empresa creada. Queda pendiente de aprobación por el Super Administrador.";
         return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> EditarEmpresa()
+    {
+        var empresa = await ObtenerEmpresaAsync();
+        if (empresa is null)
+        {
+            return RedirectToAction(nameof(CrearEmpresa));
+        }
+
+        return View(new CrearEmpresaVista
+        {
+            Nombre = empresa.Nombre,
+            Descripcion = empresa.Descripcion,
+            Direccion = empresa.Direccion,
+            Localidad = empresa.Localidad,
+            Telefono = empresa.Telefono,
+            WhatsApp = empresa.WhatsApp,
+            MediosDePago = empresa.MediosDePago,
+            OfreceDelivery = empresa.OfreceDelivery
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditarEmpresa(CrearEmpresaVista modelo)
+    {
+        var empresa = await db.Empresas.FirstOrDefaultAsync(e => e.PropietarioId == UsuarioId);
+        if (empresa is null)
+        {
+            return RedirectToAction(nameof(CrearEmpresa));
+        }
+
+        AplicarVista(empresa, modelo);
+        NormalizarEmpresa(empresa);
+
+        if (!ModelState.IsValid)
+        {
+            return View(modelo);
+        }
+
+        await db.SaveChangesAsync();
+        TempData["Mensaje"] = "Empresa actualizada correctamente.";
+        return RedirectToAction(nameof(EditarEmpresa));
     }
 
     // ----------------------------- Productos -----------------------------
@@ -430,10 +468,50 @@ public class ComercianteController(
         return await consulta.FirstOrDefaultAsync(p => p.Id == id && p.EmpresaId == empresa.Id);
     }
 
+    private static void AplicarVista(Empresa empresa, CrearEmpresaVista modelo)
+    {
+        empresa.Nombre = modelo.Nombre;
+        empresa.Descripcion = modelo.Descripcion;
+        empresa.Direccion = modelo.Direccion;
+        empresa.Localidad = modelo.Localidad;
+        empresa.Telefono = modelo.Telefono;
+        empresa.WhatsApp = modelo.WhatsApp;
+        empresa.MediosDePago = modelo.MediosDePago;
+        empresa.OfreceDelivery = modelo.OfreceDelivery;
+    }
+
+    private void NormalizarEmpresa(Empresa empresa)
+    {
+        empresa.Nombre = empresa.Nombre?.Trim() ?? string.Empty;
+        empresa.Descripcion = string.IsNullOrWhiteSpace(empresa.Descripcion) ? null : empresa.Descripcion.Trim();
+        empresa.Direccion = empresa.Direccion?.Trim() ?? string.Empty;
+        empresa.Localidad = empresa.Localidad?.Trim() ?? string.Empty;
+        empresa.Telefono = string.IsNullOrWhiteSpace(empresa.Telefono) ? null : empresa.Telefono.Trim();
+        empresa.WhatsApp = NormalizarWhatsApp(empresa.WhatsApp);
+        empresa.MediosDePago = string.IsNullOrWhiteSpace(empresa.MediosDePago) ? null : empresa.MediosDePago.Trim();
+
+        if (empresa.WhatsApp is not null && (empresa.WhatsApp.Length < 8 || empresa.WhatsApp.Length > 15))
+        {
+            ModelState.AddModelError(nameof(CrearEmpresaVista.WhatsApp),
+                "El WhatsApp debe tener entre 8 y 15 dígitos, incluyendo el código de país (ej: 5491123456789).");
+        }
+    }
+
     private static void Normalizar(Producto producto)
     {
         producto.Nombre = producto.Nombre?.Trim() ?? string.Empty;
         producto.Descripcion = string.IsNullOrWhiteSpace(producto.Descripcion) ? null : producto.Descripcion.Trim();
+    }
+
+    // Guarda solo dígitos: wa.me no acepta +, espacios ni guiones.
+    private static string? NormalizarWhatsApp(string? whatsApp)
+    {
+        if (string.IsNullOrWhiteSpace(whatsApp))
+        {
+            return null;
+        }
+
+        return new string(whatsApp.Where(char.IsDigit).ToArray());
     }
 
     private void ValidarProducto(Producto producto)

@@ -17,6 +17,8 @@ public class CrearEmpresaVista
     public string Localidad { get; set; } = string.Empty;
     [StringLength(100)]
     public string? Telefono { get; set; }
+    [StringLength(30)]
+    public string? WhatsApp { get; set; }
     [StringLength(250)]
     public string? MediosDePago { get; set; }
     public bool OfreceDelivery { get; set; } = false;

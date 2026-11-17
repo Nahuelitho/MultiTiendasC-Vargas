@@ -30,6 +30,8 @@ public class CarritoController(ContextoAplicacion db) : Controller
                     EmpresaId = item.EmpresaId,
                     Nombre = item.Nombre,
                     EmpresaNombre = item.Producto.Empresa.Nombre,
+                    EmpresaWhatsApp = item.Producto.Empresa.WhatsApp,
+                    EmpresaTelefono = item.Producto.Empresa.Telefono,
                     PrecioUnitario = item.PrecioUnitario,
                     Cantidad = item.Cantidad,
                     Subtotal = item.Subtotal,

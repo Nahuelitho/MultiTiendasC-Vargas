@@ -29,6 +29,10 @@ public class Empresa
     [StringLength(100)]
     public string? Telefono { get; set; }
 
+    // Número de WhatsApp para recibir pedidos (con código de país, sin + ni espacios).
+    [StringLength(30)]
+    public string? WhatsApp { get; set; }
+
     [StringLength(250)]
     public string? MediosDePago { get; set; }
 

@@ -17,6 +17,7 @@
         </div>
         <div class="acciones-panel">
             <input v-model="search" @@input="debouncedBuscar" placeholder="Buscar..." class="input-busqueda" />
+            <a class="boton-secundario-enlace" asp-action="EditarEmpresa">Editar empresa</a>
             <button class="boton-principal" @@click="abrirModalCrear">+ Nuevo</button>
         </div>
     </div>

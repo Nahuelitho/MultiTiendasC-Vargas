@@ -80,6 +80,7 @@ public class InicioController(ContextoAplicacion db, ILogger<InicioController> r
                 Direccion = empresa.Direccion,
                 Localidad = empresa.Localidad,
                 Telefono = empresa.Telefono,
+                WhatsApp = empresa.WhatsApp,
                 MediosDePago = empresa.MediosDePago,
                 OfreceDelivery = empresa.OfreceDelivery,
                 CantidadProductos = empresa.Productos.Count(producto => producto.Activo),
@@ -144,6 +145,7 @@ public class InicioController(ContextoAplicacion db, ILogger<InicioController> r
                 Direccion = e.Direccion,
                 Localidad = e.Localidad,
                 Telefono = e.Telefono,
+                WhatsApp = e.WhatsApp,
                 MediosDePago = e.MediosDePago,
                 OfreceDelivery = e.OfreceDelivery
             })
@@ -247,6 +249,7 @@ public class InicioController(ContextoAplicacion db, ILogger<InicioController> r
                 EmpresaDescripcion = p.Empresa.Descripcion ?? string.Empty,
                 EmpresaDireccion = p.Empresa.Direccion,
                 EmpresaTelefono = p.Empresa.Telefono,
+                EmpresaWhatsApp = p.Empresa.WhatsApp,
                 EmpresaMediosDePago = p.Empresa.MediosDePago,
                 EmpresaOfreceDelivery = p.Empresa.OfreceDelivery,
                 EmpresaCantidadProductos = 0
