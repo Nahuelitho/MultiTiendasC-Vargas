@@ -6,24 +6,33 @@ public class CarritoVista
     public decimal Total => Items.Sum(item => item.Subtotal);
     public int CantidadTotal => Items.Sum(item => item.Cantidad);
 
-    // Los pedidos se envían por WhatsApp, así que se agrupan por comercio.
-    public List<CarritoEmpresaVista> Empresas => Items
-        .GroupBy(item => new
+    // El carrito admite un solo comercio, así que hay un único botón de WhatsApp.
+    // Si quedó un carrito viejo con varios comercios, no se muestra el botón.
+    public CarritoEmpresaVista? Empresa
+    {
+        get
         {
-            item.EmpresaId,
-            item.EmpresaNombre,
-            item.EmpresaWhatsApp,
-            item.EmpresaTelefono
-        })
-        .Select(grupo => new CarritoEmpresaVista
-        {
-            EmpresaId = grupo.Key.EmpresaId,
-            EmpresaNombre = grupo.Key.EmpresaNombre,
-            WhatsApp = grupo.Key.EmpresaWhatsApp,
-            Telefono = grupo.Key.EmpresaTelefono,
-            Items = grupo.ToList()
-        })
-        .ToList();
+            var grupos = Items
+                .GroupBy(item => new
+                {
+                    item.EmpresaId,
+                    item.EmpresaNombre,
+                    item.EmpresaWhatsApp,
+                    item.EmpresaTelefono
+                })
+                .Select(grupo => new CarritoEmpresaVista
+                {
+                    EmpresaId = grupo.Key.EmpresaId,
+                    EmpresaNombre = grupo.Key.EmpresaNombre,
+                    WhatsApp = grupo.Key.EmpresaWhatsApp,
+                    Telefono = grupo.Key.EmpresaTelefono,
+                    Items = grupo.ToList()
+                })
+                .ToList();
+
+            return grupos.Count == 1 ? grupos[0] : null;
+        }
+    }
 }
 
 public class CarritoItemVista

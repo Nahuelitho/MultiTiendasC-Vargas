@@ -68,6 +68,20 @@ public class CarritoController(ContextoAplicacion db) : Controller
 
         var carrito = await ObtenerOCrearCarritoAsync();
 
+        // Un carrito = un comercio, para que el pedido salga por un único WhatsApp.
+        var empresaEnCarrito = await db.CarritoItems
+            .Where(item => item.CarritoId == carrito.Id)
+            .Select(item => new { item.EmpresaId, item.Producto.Empresa.Nombre })
+            .FirstOrDefaultAsync();
+
+        if (empresaEnCarrito is not null && empresaEnCarrito.EmpresaId != producto.EmpresaId)
+        {
+            TempData["Error"] =
+                $"Tu carrito ya tiene productos de \"{empresaEnCarrito.Nombre}\". " +
+                $"Vacía el carrito para comprar en \"{producto.Empresa.Nombre}\".";
+            return RedirectToAction(nameof(Index));
+        }
+
         // Si el producto ya está en el carrito se suma la cantidad en vez de duplicar la fila.
         var item = await db.CarritoItems
             .FirstOrDefaultAsync(item => item.CarritoId == carrito.Id && item.ProductoId == producto.Id);
@@ -172,6 +186,21 @@ public class CarritoController(ContextoAplicacion db) : Controller
         await db.SaveChangesAsync();
 
         TempData["Mensaje"] = $"Quitaste \"{item.Nombre}\" del carrito.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Vaciar()
+    {
+        var items = await db.CarritoItems
+            .Where(item => item.Carrito.UsuarioId == UsuarioId)
+            .ToListAsync();
+
+        db.CarritoItems.RemoveRange(items);
+        await db.SaveChangesAsync();
+
+        TempData["Mensaje"] = "Vaciasté el carrito.";
         return RedirectToAction(nameof(Index));
     }
 
