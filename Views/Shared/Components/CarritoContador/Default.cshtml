@@ -1,0 +1,11 @@
+@model int
+
+<a class="carrito-enlace" asp-controller="Carrito" asp-action="Index"
+   aria-label="Mi carrito@(Model > 0 ? $" ({Model} producto(s))" : "")">
+    <span aria-hidden="true">🛒</span>
+    <span class="carrito-enlace-texto">Carrito</span>
+    @if (Model > 0)
+    {
+        <span class="carrito-contador">@(Model > 9 ? "9+" : Model.ToString())</span>
+    }
+</a>

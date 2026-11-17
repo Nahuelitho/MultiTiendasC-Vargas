@@ -57,12 +57,15 @@ Abrí **http://localhost:5122** (perfil `http` de `Properties/launchSettings.jso
 
 ## 0. Credenciales y configuración
 
-### Usuarios de prueba (se crean por migración)
+### Usuarios de prueba (seed automático)
+
+La migración crea un usuario por rol y `Data/SeedDatos.cs` crea los comerciantes 2 a 8 al iniciar.
 
 | Rol | Correo | Contraseña | Acceso |
 |---|---|---|---|
 | SUPER_ADMIN | SuperAdmin@test.com | Super123. | /SuperAdmin - Aprueba empresas, gestiona roles y usuarios |
-| COMERCIANTE | Comerciante1@test.com | Comerciante123. | /Comerciante - Gestiona la empresa Mercado Central |
+| ADMIN | Admin1@test.com | Admin123. | Panel de administración general |
+| COMERCIANTE | Comerciante1@test.com | Comerciante1. | /Comerciante - Gestiona la empresa Mercado Central |
 | COMERCIANTE | Comerciante2@test.com | Comerciante123. | /Comerciante - Panadería La Espiga |
 | COMERCIANTE | Comerciante3@test.com | Comerciante123. | /Comerciante - Farmacia San Luis |
 | COMERCIANTE | Comerciante4@test.com | Comerciante123. | /Comerciante - Tienda del Cerro |
@@ -96,13 +99,15 @@ Base de datos: MySQL 8 / MariaDB 10.4 (XAMPP). Se crea automática con `dotnet e
 
 ### Script SQL con datos de prueba
 
-Dejé el dump completo en `docs/base_datos_demo.sql` (estructura + usuarios + 8 empresas + 53 productos + valoraciones). Para importarlo:
+Dejé el dump completo en `docs/base_datos_demo.sql`: estructura de las 13 tablas + migraciones + **11 usuarios, 8 empresas, 53 productos y 8 valoraciones**. No incluye carritos, pedidos ni notificaciones (arranca limpio para la demo). Para importarlo:
 
 ```powershell
 # Crear la base y luego importar el script
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS tu_tienda_cerca CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-Get-Content docs\base_datos_demo.sql -Raw | C:\xampp\mysql\bin\mysql.exe -u root tu_tienda_cerca
+cmd /c "C:\xampp\mysql\bin\mysql.exe --default-character-set=utf8mb4 -u root tu_tienda_cerca < docs\base_datos_demo.sql"
 ```
+
+> Usá `cmd /c "... < archivo"` en vez de `Get-Content | mysql`: PowerShell puede cambiar la codificación y romper los acentos (Panadería, Café, etc.).
 
 También podés dejar que la app cree la base y siembre los datos sola: `Data/SeedDatos.cs` se ejecuta automáticamente al iniciar y es idempotente.
 
@@ -114,6 +119,8 @@ Hice Tu Tienda Cerca como un marketplace para comercios de San Luis. Cada comerc
 
 Lo hice para que los comercios locales tengan un lugar centralizado donde mostrar sus productos.
 
+Además, un usuario con rol CLIENTE puede armar un carrito básico: agregar productos desde la ficha de cada producto, ver el total, cambiar cantidades y eliminar ítems. El carrito se guarda en la base (`Carritos` + `CarritoItems`), valida stock y se muestra un contador en el header. El checkout todavía no está implementado.
+
 **Autor:** Vargas, Nahuel Darío - Potrero de los Funes, San Luis - nahuel11906@gmail.com
 
 ---
@@ -122,13 +129,13 @@ Lo hice para que los comercios locales tengan un lugar centralizado donde mostra
 
 | Requerimiento | Estado | Dónde está el código | Evidencia |
 |---|---|---|---|
-| 1. 6 Tablas y relaciones 1:N y N:M | Cumplido | Models/Empresa.cs, Models/Producto.cs, Models/ImagenProducto.cs, Models/Usuario.cs, Models/UsuarioRol.cs, Models/Rol.cs - Empresa 1:N Producto, Producto 1:N ImagenProducto, Usuario N:M Rol | docs/DER.png |
+| 1. 6 Tablas y relaciones 1:N y N:M | Cumplido | 13 tablas en total. Models/Empresa.cs, Models/Producto.cs, Models/ImagenProducto.cs, Models/Usuario.cs, Models/UsuarioRol.cs, Models/Rol.cs - Empresa 1:N Producto, Producto 1:N ImagenProducto, Usuario N:M Rol | docs/DER.png |
 | 2. Login, Roles, Avatar | Cumplido | Controllers/CuentaController.cs, Services/ServicioSesion.cs, Models/Usuario.cs (AvatarUrl), Views/Perfil/Index.cshtml, Program.cs autenticación por cookies | Captura de perfil con avatar |
-| 3. Manejo de Archivos extra | Cumplido | Controllers/ComercianteController.cs (validación 6 imágenes, 2MB, JPG/PNG/WEBP/GIF) y Controllers/Api/ProductosApiController.cs endpoint con-imagen, wwwroot/imagenes/productos/ | GIF subiendo producto con imagen |
-| 4. ABM Vue.js + AJAX (SPA) | Cumplido | Views/Comerciante/ProductosVue.cshtml (Vue 3 CDN), Controllers/Api/ProductosApiController.cs (Listar, Crear, Editar, Eliminar) | Video en /Comerciante/ProductosVue creando producto sin recargar |
-| 5. Paginado por Servidor | Cumplido | Controllers/InicioController.cs (`TamanoPagina = 6`, CountAsync + Skip/Take), Controllers/ComercianteController.cs y Controllers/Api/ProductosApiController.cs (`page`/`pageSize` + CountAsync + Skip/Take), ViewModels/PaginacionVista.cs, Views/Shared/_Paginacion.cshtml | Captura Network con page=1&pageSize=10 y totalPages |
-| 6. Búsqueda Asíncrona | Cumplido | Controllers/Api/ProductosApiController.cs BuscarAsync con Take(10) y ProductosVue.cshtml buscarAsyncProductos() | GIF buscando en input de ProductosVue |
-| 7. Web API REST + JWT | Cumplido | Services/ServicioJwt.cs GenerarToken, Controllers/Api/AuthApiController.cs POST /api/auth/login, Program.cs AddJwtBearer, ProductosApiController con [Authorize(Roles="COMERCIANTE,SUPER_ADMIN")] | docs/PostmanCollection.json con Bearer Token |
+| 3. Manejo de Archivos extra | Cumplido | Controllers/ComercianteController.cs (validación 6 imágenes, 2MB, JPG/PNG/WEBP/GIF) y Controllers/api/ProductosApiController.cs endpoint con-imagen, wwwroot/imagenes/productos/ | GIF subiendo producto con imagen |
+| 4. ABM Vue.js + AJAX (SPA) | Cumplido | Views/Comerciante/ProductosVue.cshtml (Vue 3 CDN), Controllers/api/ProductosApiController.cs (Listar, Crear, Editar, Eliminar) | Video en /Comerciante/ProductosVue creando producto sin recargar |
+| 5. Paginado por Servidor | Cumplido | Controllers/InicioController.cs (`TamanoPagina = 6`, CountAsync + Skip/Take), Controllers/ComercianteController.cs y Controllers/api/ProductosApiController.cs (`page`/`pageSize` + CountAsync + Skip/Take), ViewModels/PaginacionVista.cs, Views/Shared/_Paginacion.cshtml | Captura Network con page=1&pageSize=10 y totalPages |
+| 6. Búsqueda Asíncrona | Cumplido | Controllers/SuperAdminController.cs `BuscarEmpresas` (Contains + `Take(10)`), wwwroot/js/buscador-empresas.js (debounce 250 ms + fetch), usado en Views/SuperAdmin/CrearUsuario.cshtml y Views/SuperAdmin/UsuarioRoles.cshtml. Extra: Controllers/api/ProductosApiController.cs `BuscarAsync` | GIF escribiendo en el campo Empresa y viendo sugerencias AJAX |
+| 7. Web API REST + JWT | Cumplido | Services/ServicioJwt.cs GenerarToken, Controllers/api/AuthApiController.cs POST /api/auth/login, Program.cs AddJwtBearer, ProductosApiController con [Authorize(Roles="COMERCIANTE,SUPER_ADMIN")] | docs/PostmanCollection.json con Bearer Token |
 
 ---
 
@@ -145,16 +152,26 @@ var productos = await consulta.Skip((pagina - 1) * TamanoPagina).Take(TamanoPagi
 El seed crea suficientes empresas y productos para que el paginado se vea funcionando: en el catálogo público `/` hay varias páginas tanto en la vista "Por empresa" como en "Por producto". Los enlaces usan `pagina` y no recargan todos los registros desde la base.
 
 ### Búsqueda asíncrona
-En ProductosApiController.cs tengo el endpoint buscar que solo trae 10 resultados si escribís 2 letras o más. No traigo toda la tabla.
+El caso principal está en el panel de SuperAdmin: al crear un usuario o asignar un rol, la empresa no se elige de un `<select>` con toda la tabla. Se escribe en un input y `wwwroot/js/buscador-empresas.js` consulta por AJAX a `SuperAdmin/BuscarEmpresas`, que filtra con `Contains`, ordena y devuelve como máximo 10 resultados (`Take(10)`). El JS espera 250 ms desde la última tecla (debounce) y guarda el id elegido en un input oculto, así el formulario envía `empresaId`.
 
 ```csharp
-var res = await _ctx.Productos.Where(p => p.Nombre.Contains(q)).Take(10).ToListAsync();
+var empresas = await db.Empresas
+    .Where(e => e.Nombre.Contains(q) || e.Localidad.Contains(q))
+    .OrderBy(e => e.Nombre)
+    .Take(limite)
+    .Select(e => new { e.Id, e.Nombre, e.Localidad })
+    .ToListAsync();
 ```
+
+Como refuerzo, `ProductosApiController.BuscarAsync` hace lo mismo para productos (`Take(10)`) y lo usa el ABM Vue. En ningún caso se trae la tabla completa para llenar un combo.
 
 ### ABM Vue.js SPA
 Lo hice en Views/Comerciante/ProductosVue.cshtml con Vue 3 por CDN. Todo lo hago con fetch a /api/productos: listar, crear, editar y eliminar sin hacer reload. La ruta es /Comerciante/ProductosVue y redirigí el Index del comerciante para que vaya directo ahí.
 
 **Alcance de Vue (para la defensa):** Vue se usa **solo** en `ProductosVue`. La búsqueda pública de comercios y productos es MVC clásico con formulario GET y filtros en `InicioController` (`q` + `pagina`), sin Vue ni AJAX. La gestión de roles también es MVC (`SuperAdminController` + `Views/SuperAdmin/Roles.cshtml`): la vista `RolesVue` se eliminó porque estaba rota y duplicaba funcionalidad. La campanita de notificaciones es un `ViewComponent` renderizado en servidor, sin JavaScript.
+
+### Carrito básico (CLIENTE)
+`CarritoController` reutiliza las tablas `Carritos` y `CarritoItems` que ya existían en el modelo. Si el cliente agrega el mismo producto dos veces, no crea otra fila: suma la cantidad. Antes de agregar o modificar valida que el producto esté activo y que haya stock suficiente; si no, muestra un mensaje de error. El total se calcula en el servidor y la vista `Views/Carrito/Index.cshtml` permite actualizar cantidades y eliminar ítems. El contador del header es un `ViewComponent` (`CarritoContadorViewComponent`) para no repetir la consulta en cada vista.
 
 ### Web API + JWT
 Usé ServicioJwt.cs para generar el token con los roles del usuario. En AuthApiController hice el login que devuelve el token y en Program.cs configuré el doble esquema: cookies para el MVC y Bearer para la API. Los endpoints de crear, editar y eliminar productos están protegidos con [Authorize(Roles="COMERCIANTE,SUPER_ADMIN")].
@@ -169,20 +186,23 @@ Para el avatar del perfil y para los productos. En el SPA agregué un endpoint P
 ```
 MultiTenantCSharpVargas/
 ├── Controllers/
-│   ├── Api/ - ProductosApiController.cs, AuthApiController.cs
+│   ├── api/ - ProductosApiController.cs, AuthApiController.cs
 │   ├── InicioController.cs - Catálogo público con paginado
 │   ├── ComercianteController.cs - Panel, redirige a ProductosVue
-│   └── CuentaController.cs, SuperAdminController.cs
+│   ├── CarritoController.cs - Carrito básico del CLIENTE
+│   └── CuentaController.cs, SuperAdminController.cs, PerfilController.cs
+├── ViewComponents/ - CarritoContadorViewComponent, NotificacionesViewComponent
 ├── Data/
 │   ├── ContextoAplicacion.cs - DbContext, relaciones y seed de roles/usuarios
 │   └── SeedDatos.cs - Seed idempotente de empresas y productos de demo
-├── Models/ - Empresa, Producto, ImagenProducto, Usuario, Rol, etc.
-├── ViewModels/ - TarjetaProductoVista, PaginacionVista, etc.
+├── Models/ - Empresa, Producto, ImagenProducto, Usuario, Rol, Carrito, etc.
+├── ViewModels/ - TarjetaProductoVista, PaginacionVista, CarritoVista, etc.
 ├── Services/ - ServicioSesion, ServicioJwt
 ├── Views/
+│   ├── Carrito/Index.cshtml - Carrito del cliente
 │   ├── Comerciante/ProductosVue.cshtml - SPA Vue
-│   ├── Shared/_Paginacion.cshtml
-├── wwwroot/css/componentes/ - catalogo.css, productos-vue.css, tarjetas.css
+│   └── Shared/_Paginacion.cshtml
+├── wwwroot/css/componentes/ - catalogo.css, productos-vue.css, tarjetas.css, carrito.css
 ├── docs/
 │   ├── DER.png - Diagrama DER exportado de Workbench
 │   ├── base_datos_demo.sql - Dump con estructura y datos de prueba
@@ -203,16 +223,20 @@ Roles: SUPER_ADMIN (todo), COMERCIANTE (/Comerciante/*), CLIENTE (catálogo).
 
 ## 6. Colección Postman
 
-La dejé en docs/PostmanCollection.json
+La dejé en `docs/PostmanCollection.json`. La variable `baseUrl` ya apunta a `http://localhost:5122`, así que solo hay que tener la app corriendo.
 
 Para probar:
-1. POST /api/auth/login con Comerciante1@test.com / Comerciante123. -> devuelve token
-2. GET /api/productos?page=1&pageSize=10
-3. GET /api/productos/buscar?q=Ag
-4. POST /api/productos con Bearer token
-5. POST /api/productos/con-imagen con FormData y foto
+1. Ejecutar **Login JWT** (`POST /api/auth/login` con `Comerciante2@test.com` / `Comerciante123.`). El script de test guarda el token automáticamente en la variable `jwt_token`.
+2. Ejecutar **Usuario autenticado (me)**: `GET /api/auth/me` con `Bearer {{jwt_token}}`.
+3. **Listar productos paginado**: `GET /api/productos?page=1&pageSize=5&search=pan`.
+4. **Búsqueda asíncrona**: `GET /api/productos/buscar?q=pa`.
+5. **Crear producto**: `POST /api/productos` (JSON). Copiar el `id` devuelto en la variable `productoId`.
+6. **Obtener**, **Editar** (`PUT`) y **Eliminar** (`DELETE`) usando `{{productoId}}`.
+7. **Crear producto con imagen**: `POST /api/productos/con-imagen` con FormData (elegir un archivo en el campo `Imagen`).
 
-La app ya consume la API desde el Vue, pero dejé la colección para la defensa.
+Si no se ejecuta el login primero, los endpoints protegidos responden **401**. El token dura 8 horas (`Jwt:ExpireHours`).
+
+La app ya consume la API desde el Vue, pero dejé la colección igual porque el enunciado la pide cuando la web no consume la API de forma nativa; sirve como evidencia y para la defensa.
 
 ---
 
@@ -233,7 +257,7 @@ Alternativa con el dump ya cargado:
 
 ```powershell
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS tu_tienda_cerca CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-Get-Content docs\base_datos_demo.sql -Raw | C:\xampp\mysql\bin\mysql.exe -u root tu_tienda_cerca
+cmd /c "C:\xampp\mysql\bin\mysql.exe --default-character-set=utf8mb4 -u root tu_tienda_cerca < docs\base_datos_demo.sql"
 ```
 
 ---
@@ -249,6 +273,4 @@ Archivo: docs/DER.png
 ## 9. Qué falta pulir
 
 El ABM Vue ya funciona creando productos con y sin foto. Queda grabar el video corto mostrando el flujo sin recargar para la defensa y terminar de pulir los estilos del catálogo.
-
-**Carrito y compras:** los modelos `Carrito`, `CarritoItem`, `Pedido` y `PedidoItem` ya existen con sus tablas y migraciones, pero todavía no hay controladores ni vistas. Hoy no se puede comprar: el carrito es el próximo paso natural.
 

@@ -120,7 +120,28 @@ public class ProductosApiController : ControllerBase
             .Include(p => p.Empresa)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        return producto is null ? NotFound() : Ok(producto);
+        if (producto is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new
+        {
+            producto.Id,
+            producto.Nombre,
+            producto.Descripcion,
+            producto.Precio,
+            producto.Stock,
+            producto.Activo,
+            producto.EmpresaId,
+            empresa = producto.Empresa.Nombre,
+            imagenes = producto.Imagenes.Select(imagen => new
+            {
+                imagen.Id,
+                imagen.RutaArchivo,
+                imagen.EsPrincipal
+            })
+        });
     }
 
     // POST api/productos (JSON)
@@ -152,7 +173,18 @@ public class ProductosApiController : ControllerBase
         _ctx.Productos.Add(producto);
         await _ctx.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(Obtener), new { id = producto.Id }, producto);
+        // Se devuelve un DTO anónimo: serializar la entidad con navegaciones
+        // (Empresa/Productos) provoca un ciclo en System.Text.Json.
+        return CreatedAtAction(nameof(Obtener), new { id = producto.Id }, new
+        {
+            producto.Id,
+            producto.Nombre,
+            producto.Descripcion,
+            producto.Precio,
+            producto.Stock,
+            producto.EmpresaId,
+            producto.Activo
+        });
     }
 
     // POST api/productos/con-imagen (FormData: nombre, descripcion, precio, stock, Imagen)
@@ -290,7 +322,16 @@ public class ProductosApiController : ControllerBase
         }
 
         await _ctx.SaveChangesAsync();
-        return Ok(producto);
+        return Ok(new
+        {
+            producto.Id,
+            producto.Nombre,
+            producto.Descripcion,
+            producto.Precio,
+            producto.Stock,
+            producto.EmpresaId,
+            producto.Activo
+        });
     }
 
     // DELETE api/productos/5

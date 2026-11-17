@@ -6,7 +6,7 @@ using MultiTenantCSharpVargas.Services;
 namespace MultiTenantCSharpVargas.Controllers.Api;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthApiController : ControllerBase
 {
     private readonly ContextoAplicacion _ctx;

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="~/css/cabecera.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/componentes/tarjetas.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/componentes/notificaciones.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/componentes/carrito.css" asp-append-version="true" />
     @await RenderSectionAsync("Estilos", required: false)
 </head>
 <body>
@@ -40,6 +41,7 @@
                         <a asp-area="" asp-controller="Comerciante" asp-action="Index">Panel Comerciante</a>
                     }
                     <a asp-area="" asp-controller="Perfil" asp-action="Index">Mi perfil</a>
+                    @await Component.InvokeAsync("CarritoContador")
                     @await Component.InvokeAsync("NotificacionesCampana")
 
                     <span class="usuario">@User.Identity!.Name</span>

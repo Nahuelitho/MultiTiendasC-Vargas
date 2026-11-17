@@ -122,10 +122,17 @@
 
     <!-- Búsqueda asíncrona demo -->
     <div class="bloque-busqueda-async">
-        <h3>Búsqueda asíncrona de productos (requisito)</h3>
+        <h3>Búsqueda asíncrona de productos (extra)</h3>
+        <p class="campo-ayuda">
+            Escribí 2 letras o más: se consulta la API y se listan hasta 10 coincidencias.
+            La búsqueda asíncrona de entidades relacionadas del requisito está en SuperAdmin,
+            al crear un usuario o asignar un rol (campo Empresa).
+        </p>
         <input v-model="qAsync" @@input="buscarAsyncProductos" placeholder="Busca producto por nombre..." />
         <ul v-if="resultadosAsync.length">
-            <li v-for="r in resultadosAsync" :key="r.id">{{ r.nombre }} - ${{ r.precio }}</li>
+            <li v-for="r in resultadosAsync" :key="r.id" @@click="verDesdeAsync(r)">
+                {{ r.nombre }} - ${{ r.precio }} <small>(clic para filtrar la tabla)</small>
+            </li>
         </ul>
     </div>
 </div>
@@ -389,6 +396,14 @@
                     }
                 }
 
+                function verDesdeAsync(resultado) {
+                    search.value = resultado.nombre;
+                    page.value = 1;
+                    qAsync.value = '';
+                    resultadosAsync.value = [];
+                    cargar();
+                }
+
                 onMounted(cargar);
 
                 return {
@@ -397,7 +412,7 @@
                     qAsync, resultadosAsync,
                     cargar, cambiarPagina, debouncedBuscar,
                     abrirModalCrear, abrirModalEditar, cerrarModal, onFileChange,
-                    guardar, eliminar, buscarAsyncProductos
+                    guardar, eliminar, buscarAsyncProductos, verDesdeAsync
                 };
             }
         }).mount('#app-vue-productos');

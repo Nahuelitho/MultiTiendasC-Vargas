@@ -42,6 +42,22 @@
                 <p class="detalle-texto">@Model.Producto.Descripcion</p>
             }
 
+            @if (User.IsInRole("CLIENTE") && Model.Producto.TieneStock)
+            {
+                <form class="detalle-compra" asp-controller="Carrito" asp-action="Agregar" method="post">
+                    <input type="hidden" name="productoId" value="@Model.Producto.Id" />
+                    <label class="oculto" for="cantidad">Cantidad</label>
+                    <input id="cantidad" type="number" name="cantidad" value="1" min="1" max="@Model.Producto.Stock" />
+                    <button type="submit" class="boton-principal">Agregar al carrito</button>
+                </form>
+            }
+            else if (User.Identity?.IsAuthenticated != true)
+            {
+                <p class="detalle-nota-compra">
+                    <a asp-controller="Cuenta" asp-action="Login">Iniciá sesión como cliente</a> para comprar este producto.
+                </p>
+            }
+
             <a class="boton-principal" asp-action="Empresa" asp-route-id="@Model.Producto.EmpresaId">
                 Ver comercio
             </a>

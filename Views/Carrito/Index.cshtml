@@ -1,0 +1,89 @@
+@model CarritoVista
+@using MultiTenantCSharpVargas.ViewModels
+
+@{
+    ViewData["Title"] = "Mi carrito";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/componentes/carrito.css" asp-append-version="true" />
+}
+
+<section class="pagina-inicio">
+    <div class="encabezado-seccion">
+        <span class="etiqueta-seccion">Compra</span>
+        <h1>Mi carrito</h1>
+        <p>Revisá los productos y las cantidades antes de seguir.</p>
+    </div>
+
+    @if (Model.Items.Count == 0)
+    {
+        <section class="estado-vacio">
+            <h2>Tu carrito está vacío</h2>
+            <p>Agregá productos desde el catálogo para verlos acá.</p>
+            <p class="carrito-vacio-acciones">
+                <a class="boton-principal" asp-controller="Inicio" asp-action="Inicio" asp-route-vista="productos">
+                    Ver productos
+                </a>
+            </p>
+        </section>
+    }
+    else
+    {
+        <div class="carrito-lista">
+            @foreach (var item in Model.Items)
+            {
+                <article class="carrito-item">
+                    <div class="carrito-item-imagen">
+                        @if (!string.IsNullOrWhiteSpace(item.RutaImagen))
+                        {
+                            <img src="@item.RutaImagen" alt="@item.Nombre" />
+                        }
+                        else
+                        {
+                            <span class="tarjeta-imagen-vacia" aria-hidden="true">@item.Inicial</span>
+                        }
+                    </div>
+
+                    <div class="carrito-item-info">
+                        <span class="tarjeta-etiqueta">@item.EmpresaNombre</span>
+                        <h3>
+                            <a asp-controller="Inicio" asp-action="Producto" asp-route-id="@item.ProductoId">@item.Nombre</a>
+                        </h3>
+                        <p class="carrito-item-precio">$ @item.PrecioUnitario.ToString("N2") c/u</p>
+                        <p class="carrito-item-stock">Stock disponible: @item.Stock</p>
+                    </div>
+
+                    <form class="carrito-item-cantidad" asp-action="ActualizarCantidad" method="post">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <label class="oculto" for="cantidad-@item.Id">Cantidad</label>
+                        <input id="cantidad-@item.Id" type="number" name="cantidad"
+                               value="@item.Cantidad" min="1" max="@Math.Max(1, item.Stock)" />
+                        <button type="submit" class="boton-cantidad">Actualizar</button>
+                    </form>
+
+                    <span class="carrito-item-subtotal">$ @item.Subtotal.ToString("N2")</span>
+
+                    <form asp-action="Quitar" method="post">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="boton-quitar"
+                                aria-label="Quitar @item.Nombre del carrito">
+                            Quitar
+                        </button>
+                    </form>
+                </article>
+            }
+        </div>
+
+        <div class="carrito-resumen">
+            <span>@Model.CantidadTotal unidad(es) en el carrito</span>
+            <strong>Total: $ @Model.Total.ToString("N2")</strong>
+        </div>
+
+        <div class="carrito-acciones">
+            <a class="boton-secundario-enlace" asp-controller="Inicio" asp-action="Inicio" asp-route-vista="productos">
+                Seguir comprando
+            </a>
+        </div>
+    }
+</section>
